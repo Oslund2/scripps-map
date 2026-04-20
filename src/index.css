@@ -1014,6 +1014,21 @@ body {
 }
 .duo-more-toggle:hover { color: var(--scripps-beam) !important; }
 
+/* Groups list (used in panel Groups tab on all screen sizes) */
+.duo-groups-list { list-style: none; margin: 0; padding: 0; }
+.duo-groups-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  border-radius: 4px;
+}
+.duo-groups-row:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.duo-groups-row .lg-name { flex: 1; min-width: 0; }
+.duo-groups-row b { margin-left: auto; font-weight: 600; color: var(--scripps-beam); font-family: var(--font-mono); font-size: 12px; }
+
 /* Desktop: expand button hidden by default, panel-head is just tab bar */
 .duo-panel-head { display: contents; }
 .duo-expand-btn { display: none; }

@@ -201,8 +201,8 @@ export default function DuopolyPanel({
                         {isSelected ? '\u2713' : ''}
                       </span>
                       <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
-                      <span style={{ flex: 1 }}>{group}</span>
-                      <b style={{ color: 'var(--scripps-beam)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>{count}</b>
+                      <span className="lg-name">{group}</span>
+                      <b>{count}</b>
                     </li>
                   );
                 })}
@@ -226,8 +226,8 @@ export default function DuopolyPanel({
                         {isSelected ? '\u2713' : ''}
                       </span>
                       <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
-                      <span style={{ flex: 1 }}>{group}</span>
-                      <b style={{ color: 'var(--scripps-beam)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>{count}</b>
+                      <span className="lg-name">{group}</span>
+                      <b>{count}</b>
                     </li>
                   );
                 })}
