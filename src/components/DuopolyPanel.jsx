@@ -164,6 +164,7 @@ export default function DuopolyPanel({
               <div className="duo-group-head">
                 <span className="duo-row-dot" style={{ background: meta.color }} />
                 <span>{meta.label}</span>
+                <span className="lg-info" title={meta.tip}>i</span>
                 <b>{items.length}</b>
               </div>
               <ul>

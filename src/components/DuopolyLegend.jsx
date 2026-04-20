@@ -55,7 +55,9 @@ export default function DuopolyLegend({
               return (
                 <li key={k} className={filter === k ? "on" : ""} onClick={() => onFilter(k)}>
                   <span className="lg-sw" style={{ background: meta.color }} />
-                  {meta.label} <b>{cc[k] || 0}</b>
+                  {meta.label}
+                  <span className="lg-info" title={meta.tip}>i</span>
+                  <b>{cc[k] || 0}</b>
                 </li>
               );
             })}

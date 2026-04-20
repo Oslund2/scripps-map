@@ -7,11 +7,11 @@
 // combo of a network affiliate + ION/ind passes Test 1 automatically.
 
 export const CATEGORY_META = {
-  existing:    { label: "Existing Duopoly",        color: "#FFB81C", icon: "\u25CF" },
-  expanded:    { label: "Expanded (INYO)",         color: "#2ECC71", icon: "\u25B2" },
-  new_duopoly: { label: "New Duopoly (INYO)",      color: "#27AE60", icon: "\u2605" },
-  opportunity: { label: "Duopoly Opportunity",     color: "#3498DB", icon: "\u25CB" },
-  new_market:  { label: "New INYO Market",         color: "#7F8C8D", icon: "\u25C7" },
+  existing:    { label: "Existing Duopoly",        color: "#FFB81C", icon: "\u25CF", tip: "Scripps already owns 2+ stations in this market — duopoly pre-dates INYO deal" },
+  expanded:    { label: "Expanded (INYO)",         color: "#2ECC71", icon: "\u25B2", tip: "Scripps already had a duopoly here; INYO adds more stations to strengthen it" },
+  new_duopoly: { label: "New Duopoly (INYO)",      color: "#27AE60", icon: "\u2605", tip: "Scripps had 1 station; INYO adds a station to create a new duopoly" },
+  opportunity: { label: "Duopoly Opportunity",     color: "#3498DB", icon: "\u25CB", tip: "Scripps has 1 station, no INYO yet — market conditions support a future acquisition" },
+  new_market:  { label: "New INYO Market",         color: "#7F8C8D", icon: "\u25C7", tip: "No Scripps station — INYO enters with ION/Bounce as a future duopoly beachhead" },
 };
 
 // All markets where Scripps has (or will have) broadcast presence, plus opportunity markets.
