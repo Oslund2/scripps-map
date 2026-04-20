@@ -135,7 +135,8 @@ body {
 .legend li:hover { background: rgba(255,255,255,0.05); color: #fff; }
 .legend li.on { background: rgba(255,184,28,0.12); color: #fff; }
 .legend li b { margin-left: auto; font-weight: 600; color: var(--scripps-beam); font-family: var(--font-mono); font-size: 12px; }
-.lg-sw { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,0.3); }
+.lg-sw { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,0.3); flex-shrink: 0; }
+.lg-name { flex: 1; min-width: 0; }
 .lg-info {
   display: inline-flex;
   align-items: center;

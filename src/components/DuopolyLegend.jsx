@@ -80,7 +80,7 @@ export default function DuopolyLegend({
                     {isSelected ? '\u2713' : ''}
                   </span>
                   <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
-                  {group} <b>{count}</b>
+                  <span className="lg-name">{group}</span> <b>{count}</b>
                 </li>
               );
             })}
@@ -106,7 +106,7 @@ export default function DuopolyLegend({
                     {isSelected ? '\u2713' : ''}
                   </span>
                   <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
-                  {group} <b>{count}</b>
+                  <span className="lg-name">{group}</span> <b>{count}</b>
                 </li>
               );
             })}
