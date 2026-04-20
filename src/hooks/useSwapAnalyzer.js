@@ -250,12 +250,27 @@ export default function useSwapAnalyzer() {
       }
     } catch (err) {
       if (err.name !== 'AbortError') {
-        setError(err.message);
-        setMessages(prev => {
-          const last = prev[prev.length - 1];
-          if (last?.role === 'assistant' && !last.content) return prev.slice(0, -1);
-          return prev;
-        });
+        if (fullResponse && fullResponse.length > 100) {
+          // Partial response received — keep it and append truncation note
+          const note = '\n\n---\n*Analysis was truncated due to a stream error. The content above is complete up to this point. Try asking a follow-up question for the remaining sections.*';
+          fullResponse += note;
+          setMessages(prev => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last?.role === 'assistant') {
+              next[next.length - 1] = { ...last, content: last.content + note };
+            }
+            return next;
+          });
+          persistMessage(convId, 'assistant', fullResponse);
+        } else {
+          setError(err.message);
+          setMessages(prev => {
+            const last = prev[prev.length - 1];
+            if (last?.role === 'assistant' && !last.content) return prev.slice(0, -1);
+            return prev;
+          });
+        }
       }
     } finally {
       setIsStreaming(false);
