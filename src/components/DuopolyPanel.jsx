@@ -222,7 +222,7 @@ export default function DuopolyPanel({
 
   if (market) {
     return (
-      <aside className={`right-panel duo-panel ${sizeClass}`}
+      <aside className={`right-panel duo-panel ${sizeClass}`}>
         {tabBar}
         <MarketDetail market={market} allStations={allStations} onBack={() => onSelectMarket(null)} onAnalyzeMarket={onAnalyzeMarket} />
       </aside>
@@ -241,7 +241,7 @@ export default function DuopolyPanel({
   }
 
   return (
-    <aside className={`right-panel duo-panel ${sizeClass}`}
+    <aside className={`right-panel duo-panel ${sizeClass}`}>
       {tabBar}
       <div className="duo-overview-head">
         <div className="eyebrow">M&A Analysis</div>
