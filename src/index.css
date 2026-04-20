@@ -1002,6 +1002,10 @@ body {
 .duo-group-cb.checked { background: var(--scripps-beam); border-color: var(--scripps-beam); color: #000; font-weight: 700; }
 .duo-group-cb.disabled { opacity: 0.3; cursor: not-allowed; }
 .duo-merger-hint { font-size: 10px; color: rgba(255,184,28,0.6); padding: 4px 0 2px; text-align: center; }
+
+/* Desktop: expand button hidden, panel-head is just tab bar */
+.duo-panel-head { display: contents; }
+.duo-expand-btn { display: none; }
 .duo-merger-bar {
   background: rgba(255,184,28,0.06);
   border: 1px solid rgba(255,184,28,0.2);
@@ -1717,13 +1721,65 @@ body {
   .tv-controls button { width: 40px; height: 40px; font-size: 16px; }
   .tv-controls .tv-play { width: 50px; }
 
+  /* --- Duo panel expand --- */
+  .duo-panel-head { display: flex; }
+  .duo-expand-btn { display: flex; align-items: center; justify-content: center; }
+  .duo-panel-expanded {
+    max-height: 92vh !important;
+    top: 8vh;
+    bottom: 0;
+    border-radius: 12px 12px 0 0;
+  }
+  .duo-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .duo-panel-head .duo-tab-bar { flex: 1; }
+  .duo-expand-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .duo-expand-btn:hover { border-color: var(--scripps-beam); color: var(--scripps-beam); }
+
+  /* --- Groups tab (mobile) --- */
+  .duo-groups-mobile { overflow-y: auto; flex: 1; }
+  .duo-groups-list {
+    list-style: none; margin: 0; padding: 0;
+  }
+  .duo-groups-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+  }
+  .duo-groups-row:active { background: rgba(255,255,255,0.05); }
+  .duo-groups-row .duo-group-cb { width: 18px; height: 18px; font-size: 11px; }
+
   /* --- AI Advisor --- */
   .ai-advisor { min-height: 0; }
-  .ai-templates { gap: 4px; }
-  .ai-template-btn { padding: 4px 8px; font-size: 10px; }
-  .ai-input { font-size: 14px; min-height: 36px; }
-  .ai-send-btn { padding: 6px 12px; font-size: 11px; }
+  .ai-templates { gap: 4px; flex-wrap: wrap; }
+  .ai-template-btn { padding: 6px 10px; font-size: 11px; }
+  .ai-input { font-size: 16px; min-height: 44px; }
+  .ai-send-btn { padding: 8px 14px; font-size: 12px; }
   .ai-sel-pills { gap: 4px; }
   .ai-sel-pill { font-size: 10px; padding: 3px 6px; }
-  .ai-msg { padding: 8px 10px; font-size: 12px; }
+  .ai-msg { padding: 10px 12px; font-size: 13px; line-height: 1.5; }
+  .ai-msg-text { word-break: break-word; }
+  .ai-analyze-btn { padding: 10px; font-size: 13px; }
+  .ai-empty-title { font-size: 18px; }
+  .ai-empty-sub { font-size: 12px; }
+
+  /* --- Merger bar mobile --- */
+  .duo-merger-bar { padding: 8px; }
+  .duo-merger-pill { font-size: 12px; padding: 4px 10px; }
+  .duo-merger-btn { padding: 10px; font-size: 13px; }
 }

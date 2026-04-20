@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MARKETS, CATEGORY_META, getMarketStationObjects } from '../data/markets';
+import { GROUP_COLORS } from '../data/ownerGroups';
 import { getAffilColor, affilLabel } from '../data/stations';
 import SwapAdvisor from './SwapAdvisor';
 
@@ -110,7 +111,11 @@ function MarketRow({ market, onClick, selected, onToggle }) {
 export default function DuopolyPanel({
   selectedMarket, onSelectMarket, allStations, categoryFilter,
   panelTab, onPanelTab, selectedStations, onClearSelection, onAnalyzeMarket,
-  selectedMarkets = [], onToggleMarket, onAnalyzeSelectedMarkets
+  selectedMarkets = [], onToggleMarket, onAnalyzeSelectedMarkets,
+  // Mobile group selection props
+  showAllStations, onToggleAllStations, ownerGroups = [], ownerFilter, onOwnerFilter,
+  fccLoading, fccCount, selectedGroups = [], onToggleGroup, onAnalyzeGroups,
+  expanded, onToggleExpand,
 }) {
   const market = selectedMarket ? MARKETS.find(m => m.id === selectedMarket) : null;
   const selectedMarketIds = new Set(selectedMarkets.map(m => m.id));
@@ -118,16 +123,88 @@ export default function DuopolyPanel({
   const tabBar = (
     <div className="duo-tab-bar">
       <button className={panelTab === 'markets' ? 'on' : ''} onClick={() => onPanelTab('markets')}>Markets</button>
+      <button className={panelTab === 'groups' ? 'on' : ''} onClick={() => onPanelTab('groups')}>
+        Groups{selectedGroups.length > 0 ? ` (${selectedGroups.length})` : ''}
+      </button>
       <button className={panelTab === 'advisor' ? 'on' : ''} onClick={() => onPanelTab('advisor')}>
-        AI Advisor{selectedStations && selectedStations.length > 0 ? ` (${selectedStations.length})` : ''}
+        AI{selectedStations && selectedStations.length > 0 ? ` (${selectedStations.length})` : ''}
       </button>
     </div>
   );
 
+  // Groups tab — mobile-accessible owner group selection
+  if (panelTab === 'groups') {
+    return (
+      <aside className={`right-panel duo-panel ${expanded ? 'duo-panel-expanded' : ''}`}>
+        {tabBar}
+        <div className="duo-groups-mobile">
+          <button
+            className={`duo-toggle-btn ${showAllStations ? 'on' : ''}`}
+            onClick={onToggleAllStations}
+            style={{ marginBottom: 10 }}
+          >
+            {fccLoading ? 'Loading...' : showAllStations ? `All FCC Stations (${fccCount})` : 'Show All FCC Stations'}
+          </button>
+
+          {showAllStations && ownerGroups.length > 0 && (
+            <>
+              {selectedGroups.length >= 2 && (
+                <div className="duo-merger-bar">
+                  <div className="duo-merger-pills">
+                    {selectedGroups.map(g => (
+                      <span key={g} className="duo-merger-pill" style={{ borderColor: GROUP_COLORS[g] || GROUP_COLORS.Other }}>
+                        {g}
+                        <span className="duo-merger-x" onClick={() => onToggleGroup(g)}>{'\u00D7'}</span>
+                      </span>
+                    ))}
+                  </div>
+                  <button className="duo-analyze-btn duo-merger-btn" onClick={() => { onAnalyzeGroups(); onPanelTab('advisor'); }}>
+                    Analyze Merger
+                  </button>
+                </div>
+              )}
+              {selectedGroups.length === 1 && (
+                <div className="duo-merger-hint">Select 1 more group to analyze a merger</div>
+              )}
+
+              <ul className="duo-groups-list">
+                {ownerGroups.slice(0, 15).map(([group, count]) => {
+                  const isSelected = selectedGroups.includes(group);
+                  const atMax = selectedGroups.length >= 5 && !isSelected;
+                  return (
+                    <li key={group}
+                      className={`duo-groups-row ${isSelected ? 'duo-group-selected' : ''}`}
+                      onClick={() => onOwnerFilter(group === ownerFilter ? null : group)}
+                    >
+                      <span
+                        className={`duo-group-cb ${isSelected ? 'checked' : ''} ${atMax ? 'disabled' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); if (!atMax) onToggleGroup(group); }}
+                      >
+                        {isSelected ? '\u2713' : ''}
+                      </span>
+                      <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
+                      <span style={{ flex: 1 }}>{group}</span>
+                      <b style={{ color: 'var(--scripps-beam)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>{count}</b>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        </div>
+      </aside>
+    );
+  }
+
   if (panelTab === 'advisor') {
     return (
-      <aside className="right-panel duo-panel">
-        {tabBar}
+      <aside className={`right-panel duo-panel ${expanded ? 'duo-panel-expanded' : ''}`}>
+        <div className="duo-panel-head">
+          {tabBar}
+          <button className="duo-expand-btn" onClick={onToggleExpand} title={expanded ? 'Collapse' : 'Expand'}>
+            {expanded ? '\u2193' : '\u2191'}
+          </button>
+        </div>
         <SwapAdvisor selectedStations={selectedStations} onClearSelection={onClearSelection} />
       </aside>
     );

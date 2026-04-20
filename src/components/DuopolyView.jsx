@@ -17,6 +17,7 @@ export default function DuopolyView({
   const [selectedStations, setSelectedStations] = useState([]);
   const [selectedMarkets, setSelectedMarkets] = useState([]);
   const [selectedGroups, setSelectedGroups] = useState([]);
+  const [panelExpanded, setPanelExpanded] = useState(false);
 
   const fcc = useFccStations();
   const counts = useMemo(() => getCategoryCounts(), []);
@@ -234,6 +235,18 @@ export default function DuopolyView({
         selectedMarkets={selectedMarkets}
         onToggleMarket={handleToggleMarket}
         onAnalyzeSelectedMarkets={handleAnalyzeSelectedMarkets}
+        showAllStations={showAllStations}
+        onToggleAllStations={() => { setShowAllStations(v => !v); setOwnerFilter(null); setSelectedGroups([]); }}
+        ownerGroups={ownerGroups}
+        ownerFilter={ownerFilter}
+        onOwnerFilter={setOwnerFilter}
+        fccLoading={fcc.loading}
+        fccCount={fcc.stations.length}
+        selectedGroups={selectedGroups}
+        onToggleGroup={handleToggleGroup}
+        onAnalyzeGroups={handleAnalyzeGroups}
+        expanded={panelExpanded}
+        onToggleExpand={() => setPanelExpanded(v => !v)}
       />
     </div>
   );
