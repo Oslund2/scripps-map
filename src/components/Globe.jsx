@@ -204,11 +204,17 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
                     {[...selectedFccStations].indexOf(s.callsign) + 1}
                   </text>
                 )}
-                {/* Progressive labels: show callsign at regional+, network at street */}
-                {!isSel && zoomTier !== 'wide' && (isScripps || zoomTier === 'street') && (
-                  <text x={p.x + r + 3} y={p.y + 3} fill="rgba(255,255,255,0.7)" fontSize="8"
-                        fontFamily="'JetBrains Mono', monospace" fontWeight="500" pointerEvents="none">
-                    {s.callsign}{zoomTier === 'street' && s.network ? ` ${s.network}` : ''}
+                {/* Progressive labels: only Scripps/INYO at regional, selected groups at street */}
+                {!isSel && zoomTier === 'regional' && isScripps && (
+                  <text x={p.x + r + 3} y={p.y + 3} fill="rgba(255,184,28,0.8)" fontSize="7"
+                        fontFamily="'JetBrains Mono', monospace" fontWeight="600" pointerEvents="none">
+                    {s.callsign}
+                  </text>
+                )}
+                {!isSel && zoomTier === 'street' && (isScripps || (selectedFccStations && selectedFccStations.size > 0)) && isScripps && (
+                  <text x={p.x + r + 3} y={p.y + 3} fill="rgba(255,184,28,0.8)" fontSize="8"
+                        fontFamily="'JetBrains Mono', monospace" fontWeight="600" pointerEvents="none">
+                    {s.callsign} {s.network || ''}
                   </text>
                 )}
                 {hovered === "fcc-" + s.callsign && (() => {
