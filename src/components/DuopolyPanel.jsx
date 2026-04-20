@@ -119,6 +119,7 @@ export default function DuopolyPanel({
 }) {
   const market = selectedMarket ? MARKETS.find(m => m.id === selectedMarket) : null;
   const selectedMarketIds = new Set(selectedMarkets.map(m => m.id));
+  const [showMoreGroups, setShowMoreGroups] = useState(false);
 
   // Tapping a tab also opens the panel if collapsed
   const switchTab = (tab) => {
@@ -186,6 +187,31 @@ export default function DuopolyPanel({
 
               <ul className="duo-groups-list">
                 {ownerGroups.slice(0, 15).map(([group, count]) => {
+                  const isSelected = selectedGroups.includes(group);
+                  const atMax = selectedGroups.length >= 5 && !isSelected;
+                  return (
+                    <li key={group}
+                      className={`duo-groups-row ${isSelected ? 'duo-group-selected' : ''}`}
+                      onClick={() => onOwnerFilter(group === ownerFilter ? null : group)}
+                    >
+                      <span
+                        className={`duo-group-cb ${isSelected ? 'checked' : ''} ${atMax ? 'disabled' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); if (!atMax) onToggleGroup(group); }}
+                      >
+                        {isSelected ? '\u2713' : ''}
+                      </span>
+                      <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
+                      <span style={{ flex: 1 }}>{group}</span>
+                      <b style={{ color: 'var(--scripps-beam)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>{count}</b>
+                    </li>
+                  );
+                })}
+                {ownerGroups.length > 15 && (
+                  <li className="duo-groups-row duo-more-toggle" onClick={() => setShowMoreGroups(v => !v)}>
+                    {showMoreGroups ? '\u25B4 Less' : `\u25BE More groups (${ownerGroups.length - 15})`}
+                  </li>
+                )}
+                {showMoreGroups && ownerGroups.slice(15).map(([group, count]) => {
                   const isSelected = selectedGroups.includes(group);
                   const atMax = selectedGroups.length >= 5 && !isSelected;
                   return (

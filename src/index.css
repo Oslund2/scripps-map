@@ -1002,6 +1002,16 @@ body {
 .duo-group-cb.checked { background: var(--scripps-beam); border-color: var(--scripps-beam); color: #000; font-weight: 700; }
 .duo-group-cb.disabled { opacity: 0.3; cursor: not-allowed; }
 .duo-merger-hint { font-size: 10px; color: rgba(255,184,28,0.6); padding: 4px 0 2px; text-align: center; }
+.duo-more-toggle {
+  color: rgba(255,255,255,0.5) !important;
+  font-size: 11px !important;
+  cursor: pointer;
+  text-align: center;
+  justify-content: center !important;
+  padding: 6px 8px !important;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.duo-more-toggle:hover { color: var(--scripps-beam) !important; }
 
 /* Desktop: expand button hidden, panel-head is just tab bar */
 .duo-panel-head { display: contents; }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CATEGORY_META, getCategoryCounts } from '../data/markets';
 import { GROUP_COLORS } from '../data/ownerGroups';
 
@@ -11,6 +12,7 @@ export default function DuopolyLegend({
   selectedGroups = [], onToggleGroup, onAnalyzeGroups, onAnalyzeDeals,
 }) {
   const cc = counts || getCategoryCounts();
+  const [showMore, setShowMore] = useState(false);
   return (
     <div className="legend duo-legend">
       {/* Stations Toggle */}
@@ -62,6 +64,32 @@ export default function DuopolyLegend({
               All groups <b>{fccCount}</b>
             </li>
             {ownerGroups.slice(0, 15).map(([group, count]) => {
+              const isSelected = selectedGroups.includes(group);
+              const isFiltered = ownerFilter === group;
+              const atMax = selectedGroups.length >= 5 && !isSelected;
+              return (
+                <li key={group}
+                  className={`${isFiltered ? 'on' : ''} ${isSelected ? 'duo-group-selected' : ''}`}
+                  onClick={() => onOwnerFilter(group === ownerFilter ? null : group)}
+                >
+                  <span
+                    className={`duo-group-cb ${isSelected ? 'checked' : ''} ${atMax ? 'disabled' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); if (!atMax) onToggleGroup(group); }}
+                    title={atMax ? 'Max 5 groups' : isSelected ? 'Remove from merger' : 'Add to merger analysis'}
+                  >
+                    {isSelected ? '\u2713' : ''}
+                  </span>
+                  <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
+                  {group} <b>{count}</b>
+                </li>
+              );
+            })}
+            {ownerGroups.length > 15 && (
+              <li className="duo-more-toggle" onClick={() => setShowMore(v => !v)}>
+                {showMore ? '\u25B4 Less' : `\u25BE More groups (${ownerGroups.length - 15})`}
+              </li>
+            )}
+            {showMore && ownerGroups.slice(15).map(([group, count]) => {
               const isSelected = selectedGroups.includes(group);
               const isFiltered = ownerFilter === group;
               const atMax = selectedGroups.length >= 5 && !isSelected;
