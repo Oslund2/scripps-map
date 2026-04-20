@@ -42,7 +42,13 @@ export default function DuopolyView({
   const fccStationDots = useMemo(() => {
     if (!showAllStations || !fcc.loaded) return [];
     let filtered = fcc.stations;
-    if (ownerFilter) filtered = filtered.filter(s => s.owner_group === ownerFilter);
+    // If groups are checked for merger, show all of those groups
+    if (selectedGroups.length > 0) {
+      const groupSet = new Set(selectedGroups);
+      filtered = filtered.filter(s => groupSet.has(s.owner_group));
+    } else if (ownerFilter) {
+      filtered = filtered.filter(s => s.owner_group === ownerFilter);
+    }
     return filtered.map(s => ({
       callsign: s.callsign, lat: s.lat, lon: s.lon,
       city: s.city, state: s.state,
@@ -51,7 +57,7 @@ export default function DuopolyView({
       owner: s.owner_group, network: s.network, dmaRank: s.dma_rank,
       dmaName: s.dma_name,
     }));
-  }, [showAllStations, fcc.stations, fcc.loaded, ownerFilter]);
+  }, [showAllStations, fcc.stations, fcc.loaded, ownerFilter, selectedGroups]);
 
   const ownerGroups = useMemo(() => {
     if (!fcc.loaded) return [];
