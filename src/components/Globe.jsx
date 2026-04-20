@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { getAffilColor } from '../data/stations';
 
 function project(lat, lon, lon0, lat0, R, cx, cy) {
@@ -23,12 +23,25 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
   const TIER_STREET = 900;
   const zoomTier = R < TIER_REGIONAL ? 'wide' : R < TIER_STREET ? 'regional' : 'street';
 
-  function handleWheel(e) {
-    if (!onZoom) return;
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -40 : 40;
-    onZoom(delta);
-  }
+  const svgRef = useRef(null);
+  const onZoomRef = useRef(onZoom);
+  const zoomValRef = useRef(R);
+  useEffect(() => { onZoomRef.current = onZoom; }, [onZoom]);
+  useEffect(() => { zoomValRef.current = R; }, [R]);
+
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    function handleWheel(e) {
+      if (!onZoomRef.current) return;
+      e.preventDefault();
+      const step = Math.max(30, zoomValRef.current * 0.08);
+      const delta = e.deltaY > 0 ? -step : step;
+      onZoomRef.current(delta);
+    }
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
 
   // Project land polygons
   const landPaths = useMemo(() => {
@@ -114,8 +127,7 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
   }, [route, lon0, lat0, R, focusIdx]);
 
   return (
-    <svg viewBox="0 0 1000 1000" style={{ width: "100%", height: "100%", display: "block" }}
-         onWheel={handleWheel}>
+    <svg ref={svgRef} viewBox="0 0 1000 1000" style={{ width: "100%", height: "100%", display: "block" }}>
       <defs>
         <radialGradient id="ocean" cx="45%" cy="40%" r="65%">
           <stop offset="0%" stopColor="#16406B" />
