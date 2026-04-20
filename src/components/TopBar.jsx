@@ -4,6 +4,7 @@ import { getAffilColor } from '../data/stations';
 export default function TopBar({ stationCount, tourCount, view, onView, allStations, onStationSelect }) {
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const results = useMemo(() => {
     if (!query || !allStations) return [];
@@ -24,7 +25,20 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
     onStationSelect?.(s);
   };
 
+  const handleNav = (v) => {
+    onView(v);
+    setMenuOpen(false);
+  };
+
   const showResults = focused && query && results.length > 0;
+
+  const viewLabel = {
+    tour: 'Scripps Tour',
+    list: 'Scripps',
+    allstations: 'All Stations',
+    duopoly: 'M&A',
+    tv: 'TV Monitor',
+  };
 
   return (
     <header className="top-bar">
@@ -112,6 +126,46 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
         <button className={view === "duopoly" ? "on" : ""} onClick={() => onView("duopoly")}>M&A</button>
         <button className={"tv-tab" + (view === "tv" ? " on" : "")} onClick={() => onView("tv")}>TV Monitor</button>
       </nav>
+
+      {/* Mobile hamburger + current view label */}
+      <button className="tb-hamburger" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
+        <span /><span /><span />
+      </button>
+      <div className="tb-mobile-label">{viewLabel[view] || 'Scripps'}</div>
+
+      {/* Mobile dropdown menu */}
+      {menuOpen && (
+        <div className="tb-mobile-menu">
+          <nav className="tb-mobile-nav">
+            {Object.entries(viewLabel).map(([v, label]) => (
+              <button key={v} className={view === v ? 'on' : ''} onClick={() => handleNav(v)}>
+                {label}
+              </button>
+            ))}
+          </nav>
+          <div className="tb-mobile-search">
+            <input
+              type="text"
+              placeholder="Search callsign, city..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && results.length > 0) { handleSelect(results[0]); setMenuOpen(false); }
+              }}
+            />
+            {query && results.length > 0 && (
+              <ul>
+                {results.slice(0, 5).map(s => (
+                  <li key={s.callsign} onClick={() => { handleSelect(s); setMenuOpen(false); }}>
+                    <span className="tb-sr-dot" style={{ background: getAffilColor(s.type) }} />
+                    <b>{s.callsign}</b> {s.city}, {s.state}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
