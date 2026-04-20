@@ -10,7 +10,7 @@ export default function App() {
   const stations = SCRIPPS_STATIONS;
   const [view, setView] = useState("duopoly");
   const [rotation, setRotation] = useState({ lat: 38, lon: -96 });
-  const [zoom, setZoom] = useState(420);
+  const [zoom, setZoom] = useState(750);
   const [landGeo, setLandGeo] = useState(null);
 
   // Load land geometry
