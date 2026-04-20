@@ -225,7 +225,16 @@ export default function useSwapAnalyzer() {
                 return next;
               });
             }
-          } catch {
+
+            // Handle stream errors from API
+            if (parsed.type === 'error') {
+              const errMsg = parsed.error?.message || 'Stream error';
+              throw new Error(errMsg);
+            }
+          } catch (parseErr) {
+            if (parseErr.message && parseErr.message !== 'Stream error' && !parseErr.message.includes('JSON')) {
+              throw parseErr; // re-throw real errors
+            }
             // skip unparseable lines
           }
         }

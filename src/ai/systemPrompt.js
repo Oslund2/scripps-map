@@ -25,13 +25,23 @@ export function setFccStations(stations) { _fccStations = stations || []; }
 
 function competitorSection() {
   if (!_fccStations.length) return "No FCC competitor data loaded yet. Use your training knowledge for competitor ownership in each DMA.";
-  // Group by DMA name, show all stations per market
+
+  // Only include full station details for Scripps/INYO markets (keeps prompt manageable)
+  // For other markets, provide group-level summary
+  const scrippsMarkets = new Set();
+  for (const s of _fccStations) {
+    if (s.is_scripps || s.is_inyo) scrippsMarkets.add(s.dma_name);
+  }
+
   const byDma = {};
   for (const s of _fccStations) {
     const key = s.dma_name || s.city + ', ' + s.state;
     (byDma[key] = byDma[key] || []).push(s);
   }
-  return Object.entries(byDma)
+
+  // Detailed view for Scripps markets
+  const detailed = Object.entries(byDma)
+    .filter(([dma]) => scrippsMarkets.has(dma))
     .sort((a, b) => (a[1][0]?.dma_rank || 999) - (b[1][0]?.dma_rank || 999))
     .map(([dma, stns]) => {
       const rank = stns[0]?.dma_rank ? ` (DMA #${stns[0].dma_rank})` : '';
@@ -40,6 +50,18 @@ function competitorSection() {
       );
       return `${dma}${rank}: ${stns.length} stations\n${lines.join('\n')}`;
     }).join('\n\n');
+
+  // Group-level summary for all markets
+  const groups = {};
+  for (const s of _fccStations) {
+    groups[s.owner_group] = (groups[s.owner_group] || 0) + 1;
+  }
+  const summary = Object.entries(groups)
+    .sort((a, b) => b[1] - a[1])
+    .map(([g, c]) => `${g}: ${c}`)
+    .join(', ');
+
+  return `**Nationwide owner group totals (${_fccStations.length} full-power stations):**\n${summary}\n\n**Detailed station data for Scripps/INYO markets:**\n\n${detailed}\n\nFor non-Scripps markets, use your training knowledge plus web search for current ownership details.`;
 }
 
 export function buildSystemPrompt() {
