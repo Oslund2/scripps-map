@@ -282,7 +282,7 @@ export default function DuopolyView({
             selectedFccStations={selectedFccSet}
             overlapOverlay={overlapOverlay}
             onOverlapClick={handleOverlapClick}
-            onZoom={(delta) => setZoom(z => Math.max(250, Math.min(1200, z + delta)))}
+            onZoom={(delta) => setZoom(z => Math.max(250, Math.min(3000, z + delta)))}
           />
         </div>
         <div className="globe-overlay" />

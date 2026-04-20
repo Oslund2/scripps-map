@@ -4,7 +4,7 @@ import TopBar from './components/TopBar';
 import DuopolyView from './components/DuopolyView';
 import ScrippsPortfolio from './components/ScrippsPortfolio';
 
-const R_MAX = 1200;
+const R_MAX = 3000;
 
 export default function App() {
   const stations = SCRIPPS_STATIONS;
