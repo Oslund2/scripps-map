@@ -64,8 +64,11 @@ function competitorSection() {
   return `**Nationwide owner group totals (${_fccStations.length} full-power stations):**\n${summary}\n\n**Detailed station data for Scripps/INYO markets:**\n\n${detailed}\n\nFor non-Scripps markets, use your training knowledge plus web search for current ownership details.`;
 }
 
-export function buildSystemPrompt() {
-  return `You are the Scripps M&A Advisor — an expert in broadcast television regulatory analysis, station valuations, and multi-party deal structuring. You have deep knowledge of FCC ownership rules, DMA market dynamics, the competitive landscape of US local television, and financial modeling for broadcast M&A.
+const DEFAULT_PERSONA = 'the Scripps M&A Advisor — an expert in broadcast television regulatory analysis, station valuations, and multi-party deal structuring. You have deep knowledge of FCC ownership rules, DMA market dynamics, the competitive landscape of US local television, and financial modeling for broadcast M&A';
+
+export function buildSystemPrompt({ persona, additionalInstructions } = {}) {
+  const role = persona && persona.trim() ? persona.trim() : DEFAULT_PERSONA;
+  let prompt = `You are ${role}.
 
 ## FCC Local Television Ownership Rules (47 CFR §73.3555(b))
 
@@ -193,4 +196,10 @@ End every response with:
 ---
 **Sources:**
 (i1) Nielsen ... (i2) BIA/Pew ... etc. — only list the sources you actually cited.`;
+
+  if (additionalInstructions && additionalInstructions.trim()) {
+    prompt += `\n\n## Additional User Instructions\n\n${additionalInstructions.trim()}`;
+  }
+
+  return prompt;
 }

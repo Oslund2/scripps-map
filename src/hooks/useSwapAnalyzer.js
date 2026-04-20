@@ -11,6 +11,8 @@ export default function useSwapAnalyzer() {
   const [messages, setMessages] = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
+  const [persona, setPersona] = useState('');
+  const [additionalInstructions, setAdditionalInstructions] = useState('');
   const abortRef = useRef(null);
   const systemPromptRef = useRef(null);
 
@@ -32,8 +34,9 @@ export default function useSwapAnalyzer() {
   }, []);
 
   function getSystemPrompt() {
-    if (!systemPromptRef.current) {
-      systemPromptRef.current = buildSystemPrompt();
+    // Rebuild every time if customizations exist (they may change between sends)
+    if (persona || additionalInstructions || !systemPromptRef.current) {
+      systemPromptRef.current = buildSystemPrompt({ persona, additionalInstructions });
     }
     return systemPromptRef.current;
   }
@@ -212,5 +215,8 @@ export default function useSwapAnalyzer() {
   return {
     messages, isStreaming, error, apiKeyConfigured,
     sendMessage, clearMessages,
+    persona, setPersona,
+    additionalInstructions, setAdditionalInstructions,
+    getSystemPrompt,
   };
 }

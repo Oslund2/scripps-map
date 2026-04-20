@@ -191,8 +191,13 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
   const {
     messages, isStreaming, error, apiKeyConfigured,
     sendMessage, clearMessages,
+    persona, setPersona,
+    additionalInstructions, setAdditionalInstructions,
+    getSystemPrompt,
   } = useSwapAnalyzer();
   const [input, setInput] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
+  const [showRawPrompt, setShowRawPrompt] = useState(false);
   const threadRef = useRef(null);
   const userAtBottom = useRef(true);
 
@@ -248,7 +253,54 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
             New
           </button>
         )}
+        <button
+          className={`ai-template-btn ai-gear-btn ${showSettings ? 'on' : ''}`}
+          onClick={() => setShowSettings(v => !v)}
+          title="Prompt settings"
+        >
+          {'\u2699'}
+        </button>
       </div>
+
+      {/* Settings panel */}
+      {showSettings && (
+        <div className="ai-settings">
+          <div className="ai-settings-field">
+            <label className="eyebrow">Analysis Persona</label>
+            <input
+              type="text"
+              className="ai-settings-input"
+              placeholder="e.g., neutral industry analyst, investment banker, FCC regulatory counsel"
+              value={persona}
+              onChange={e => setPersona(e.target.value)}
+            />
+            <div className="ai-settings-hint">
+              Overrides the default "Scripps M&A Advisor" role. Leave blank for default.
+            </div>
+          </div>
+          <div className="ai-settings-field">
+            <label className="eyebrow">Additional Instructions</label>
+            <textarea
+              className="ai-settings-textarea"
+              placeholder="e.g., Focus only on political ad revenue upside. Ignore markets under DMA #50. Use conservative 5x multiples."
+              value={additionalInstructions}
+              onChange={e => setAdditionalInstructions(e.target.value)}
+              rows={3}
+            />
+            <div className="ai-settings-hint">
+              Appended to the system prompt. Use this to steer the analysis without editing the core prompt.
+            </div>
+          </div>
+          <div className="ai-settings-field">
+            <button className="ai-settings-raw-toggle" onClick={() => setShowRawPrompt(v => !v)}>
+              {showRawPrompt ? '\u25B4 Hide' : '\u25BE View'} System Prompt ({(getSystemPrompt().length / 1024).toFixed(0)}KB)
+            </button>
+            {showRawPrompt && (
+              <pre className="ai-settings-raw">{getSystemPrompt()}</pre>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Station selection bar */}
       {selectedStations.length > 0 && (() => {
