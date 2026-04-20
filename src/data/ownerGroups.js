@@ -69,6 +69,20 @@ export const GROUP_COLORS = {
   "Hubbard":     "#27AE60",  // forest
   "Allen Media": "#7F8C8D",  // gray
   "Univision":   "#9B59B6",  // purple
+  "Entravision": "#8E44AD",  // deep purple
+  "Marquee":     "#5D6D7E",  // slate
+  "SagamoreHill":"#117A65",  // dark teal
+  "Forum":       "#6C3483",  // plum
+  "Griffin":     "#1A5276",  // dark blue
+  "Lilly":       "#148F77",  // jade
+  "Bonneville":  "#1F618D",  // steel blue
+  "Block":       "#4A235A",  // aubergine
+  "Berkshire Hathaway": "#7B241C", // maroon
+  "Capitol":     "#0E6655",  // emerald
+  "Bhtv":        "#5B2C6F",  // dark violet
+  "Bahakel":     "#784212",  // brown
+  "Weigel":      "#1B4F72",  // midnight blue
+  "Lockwood":    "#6E2C00",  // chocolate
   "Public/PBS":  "#95A5A6",  // light gray
   "Religious":   "#BDC3C7",  // pale
   "Other":       "#7F8C8D",  // gray
