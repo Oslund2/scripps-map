@@ -240,16 +240,20 @@ export default function DuopolyPanel({
   }
 
   if (panelTab === 'advisor') {
+    const isFocused = panelSize === 'expanded';
     return (
-      <aside className={`right-panel duo-panel ${sizeClass}`}>
-        <div className="duo-panel-head">
-          {tabBar}
-          <button className="duo-expand-btn" onClick={onCyclePanel} title={sizeTitle}>
-            {sizeIcon}
-          </button>
-        </div>
-        <SwapAdvisor selectedStations={selectedStations} onClearSelection={onClearSelection} />
-      </aside>
+      <>
+        {isFocused && <div className="duo-focus-backdrop" onClick={onCyclePanel} />}
+        <aside className={`right-panel duo-panel ${sizeClass} ${isFocused ? 'duo-panel-focus' : ''}`}>
+          <div className="duo-panel-head duo-panel-head-always">
+            {tabBar}
+            <button className="duo-expand-btn duo-expand-btn-always" onClick={onCyclePanel} title={isFocused ? 'Collapse' : 'Expand'}>
+              {isFocused ? '\u2715' : '\u2922'}
+            </button>
+          </div>
+          <SwapAdvisor selectedStations={selectedStations} onClearSelection={onClearSelection} />
+        </aside>
+      </>
     );
   }
 
