@@ -23,6 +23,26 @@ function buildSelectionPrompt(stations) {
   return `Analyze these ${stations.length} stations I've selected on the map:\n\n${list}\n\nFor Scripps, evaluate:\n- Which of these could Scripps acquire to form/expand a duopoly?\n- FCC compliance for each potential combination (top-4 + 8-voice tests)\n- Estimated deal value using DMA revenue benchmarks\n- Multi-party swap scenarios if direct acquisition isn't feasible\n- Regulatory risk rating (LOW/MEDIUM/HIGH) for each scenario\n- Recommended best move\n\nCite all data points with (i1)-(i5) markers.`;
 }
 
+function buildMarketPrompt(stations) {
+  // Group stations by DMA/market
+  const byMarket = {};
+  for (const s of stations) {
+    const key = s.dmaName || s.city + ', ' + s.state;
+    (byMarket[key] = byMarket[key] || []).push(s);
+  }
+  const marketEntries = Object.entries(byMarket);
+  let list = '';
+  for (const [market, stns] of marketEntries) {
+    const rank = stns[0].dmaRank || '?';
+    list += `\n**${market}** (DMA #${rank}):\n`;
+    for (const s of stns) {
+      const ours = s.type === 'scripps' || s.type === 'inyo';
+      list += `  - ${s.callsign} — ${s.network || 'Unknown'}, owned by ${s.owner}${ours ? ' [SCRIPPS]' : ''}\n`;
+    }
+  }
+  return `Analyze these ${marketEntries.length} markets I've selected for M&A opportunity:\n${list}\nFor Scripps, evaluate:\n- Cross-market swap scenarios and synergies between these markets\n- FCC compliance for each potential combination (top-4 + 8-voice tests)\n- Estimated deal value using DMA revenue benchmarks\n- Which markets are strongest for duopoly expansion?\n- Regulatory risk rating (LOW/MEDIUM/HIGH) for each scenario\n- Recommended best move and priority order\n\nCite all data points with (i1)-(i5) markers.`;
+}
+
 export default function SwapAdvisor({ selectedStations = [], onClearSelection }) {
   const {
     messages, isStreaming, error, apiKeyConfigured,
@@ -95,27 +115,45 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
       </div>
 
       {/* Station selection bar */}
-      {selectedStations.length > 0 && (
-        <div className="ai-selection-bar">
-          <div className="ai-sel-header">
-            <span className="eyebrow">Selected Stations ({selectedStations.length}/4)</span>
-            <button className="ai-sel-clear" onClick={onClearSelection}>Clear</button>
-          </div>
-          <div className="ai-sel-pills">
-            {selectedStations.map((s, i) => (
-              <span key={s.callsign} className="ai-sel-pill" style={{ borderColor: s.color }}>
-                <span className="ai-sel-num">{i + 1}</span>
-                <b>{s.callsign}</b>
-                <span className="ai-sel-meta">{s.network} / {s.owner}</span>
+      {selectedStations.length > 0 && (() => {
+        // Group by market for display
+        const byMarket = {};
+        for (const s of selectedStations) {
+          const key = s.dmaName || s.city;
+          (byMarket[key] = byMarket[key] || []).push(s);
+        }
+        const marketNames = Object.keys(byMarket);
+        const isMultiMarket = marketNames.length > 1;
+        const prompt = isMultiMarket ? buildMarketPrompt(selectedStations) : buildSelectionPrompt(selectedStations);
+        return (
+          <div className="ai-selection-bar">
+            <div className="ai-sel-header">
+              <span className="eyebrow">
+                {isMultiMarket ? `${marketNames.length} Markets` : `${selectedStations.length} Stations`} Selected
               </span>
-            ))}
+              <button className="ai-sel-clear" onClick={onClearSelection}>Clear</button>
+            </div>
+            <div className="ai-sel-pills">
+              {isMultiMarket ? marketNames.map(name => (
+                <span key={name} className="ai-sel-pill" style={{ borderColor: 'var(--scripps-beam)' }}>
+                  <b>{name}</b>
+                  <span className="ai-sel-meta">{byMarket[name].length} stn{byMarket[name].length !== 1 ? 's' : ''}</span>
+                </span>
+              )) : selectedStations.map((s, i) => (
+                <span key={s.callsign} className="ai-sel-pill" style={{ borderColor: s.color }}>
+                  <span className="ai-sel-num">{i + 1}</span>
+                  <b>{s.callsign}</b>
+                  <span className="ai-sel-meta">{s.network} / {s.owner}</span>
+                </span>
+              ))}
+            </div>
+            <button className="ai-analyze-btn" disabled={isStreaming}
+                    onClick={() => { sendMessage(prompt); userAtBottom.current = true; }}>
+              Analyze {isMultiMarket ? `${marketNames.length} Markets` : `${selectedStations.length} Station${selectedStations.length !== 1 ? 's' : ''}`}
+            </button>
           </div>
-          <button className="ai-analyze-btn" disabled={isStreaming}
-                  onClick={() => { sendMessage(buildSelectionPrompt(selectedStations)); userAtBottom.current = true; }}>
-            Analyze {selectedStations.length} Station{selectedStations.length !== 1 ? 's' : ''}
-          </button>
-        </div>
-      )}
+        );
+      })()}
 
       {showHistory && (
         <div className="ai-history">

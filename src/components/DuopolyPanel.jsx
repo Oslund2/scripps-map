@@ -84,13 +84,20 @@ function MarketDetail({ market, allStations, onBack, onAnalyzeMarket }) {
   );
 }
 
-function MarketRow({ market, onClick }) {
+function MarketRow({ market, onClick, selected, onToggle }) {
   const meta = CATEGORY_META[market.category];
   const total = market.stations.scripps.length + market.stations.inyo.length;
   return (
-    <li className="duo-market-row" onClick={onClick}>
+    <li className={`duo-market-row ${selected ? 'duo-market-row-selected' : ''}`}>
+      <span
+        className={`duo-row-check ${selected ? 'on' : ''}`}
+        onClick={(e) => { e.stopPropagation(); onToggle(market); }}
+        title="Select for analysis"
+      >
+        {selected ? '\u2713' : ''}
+      </span>
       <span className="duo-row-dot" style={{ background: meta.color }} />
-      <span className="duo-row-name">{market.name}</span>
+      <span className="duo-row-name" onClick={onClick} style={{ cursor: 'pointer' }}>{market.name}</span>
       <span className="duo-row-rank">#{market.dmaRank}</span>
       <span className="duo-row-count">{total} stn{total !== 1 ? "s" : ""}</span>
       <span className={`duo-row-fcc ${market.fcc.compliant === true ? "pass" : market.fcc.compliant === false ? "fail" : "tbd"}`}>
@@ -102,9 +109,11 @@ function MarketRow({ market, onClick }) {
 
 export default function DuopolyPanel({
   selectedMarket, onSelectMarket, allStations, categoryFilter,
-  panelTab, onPanelTab, selectedStations, onClearSelection, onAnalyzeMarket
+  panelTab, onPanelTab, selectedStations, onClearSelection, onAnalyzeMarket,
+  selectedMarkets = [], onToggleMarket, onAnalyzeSelectedMarkets
 }) {
   const market = selectedMarket ? MARKETS.find(m => m.id === selectedMarket) : null;
+  const selectedMarketIds = new Set(selectedMarkets.map(m => m.id));
 
   const tabBar = (
     <div className="duo-tab-bar">
@@ -152,8 +161,30 @@ export default function DuopolyPanel({
         <h2 className="sc-title" style={{ fontSize: 20 }}>Duopoly Opportunities</h2>
         <p className="duo-overview-sub">
           {filtered.length} markets {'\u00B7'} FCC {'\u00A7'}73.3555(b)
+          <br />
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+            Check markets below, then click Analyze
+          </span>
         </p>
       </div>
+
+      {/* Analyze bar — shown when markets are checked */}
+      {selectedMarkets.length > 0 && (
+        <div className="duo-analyze-bar">
+          <div className="duo-analyze-pills">
+            {selectedMarkets.map(m => (
+              <span key={m.id} className="duo-analyze-pill">
+                {m.name}
+                <span className="duo-analyze-pill-x" onClick={() => onToggleMarket(m)}>{'\u00D7'}</span>
+              </span>
+            ))}
+          </div>
+          <button className="duo-analyze-btn" onClick={onAnalyzeSelectedMarkets}>
+            Analyze {selectedMarkets.length} Market{selectedMarkets.length !== 1 ? 's' : ''}
+          </button>
+        </div>
+      )}
+
       <div className="duo-market-groups">
         {cats.map(cat => {
           const items = grouped[cat];
@@ -169,7 +200,13 @@ export default function DuopolyPanel({
               </div>
               <ul>
                 {items.sort((a, b) => a.dmaRank - b.dmaRank).map(m => (
-                  <MarketRow key={m.id} market={m} onClick={() => onSelectMarket(m.id)} />
+                  <MarketRow
+                    key={m.id}
+                    market={m}
+                    onClick={() => onSelectMarket(m.id)}
+                    selected={selectedMarketIds.has(m.id)}
+                    onToggle={onToggleMarket}
+                  />
                 ))}
               </ul>
             </section>

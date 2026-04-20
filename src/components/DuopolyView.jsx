@@ -15,6 +15,7 @@ export default function DuopolyView({
   const [ownerFilter, setOwnerFilter] = useState(null);
   const [panelTab, setPanelTab] = useState('advisor');
   const [selectedStations, setSelectedStations] = useState([]);
+  const [selectedMarkets, setSelectedMarkets] = useState([]);
 
   const fcc = useFccStations();
   const counts = useMemo(() => getCategoryCounts(), []);
@@ -88,13 +89,21 @@ export default function DuopolyView({
     }
   };
 
-  const clearSelection = () => setSelectedStations([]);
+  const clearSelection = () => { setSelectedStations([]); setSelectedMarkets([]); };
 
-  // "Select for analysis" from a market detail card
-  const handleAnalyzeMarket = (market) => {
+  // Toggle market selection (checkbox in market list)
+  const handleToggleMarket = (market) => {
+    setSelectedMarkets(prev => {
+      const exists = prev.find(m => m.id === market.id);
+      if (exists) return prev.filter(m => m.id !== market.id);
+      return [...prev, market];
+    });
+  };
+
+  // Build station objects from a market
+  function buildMarketStations(market) {
     const callsigns = [...market.stations.scripps, ...market.stations.inyo];
-    // Build station objects from FCC data if available, else from allStations
-    const stationObjs = callsigns.map(call => {
+    return callsigns.map(call => {
       if (fcc.loaded) {
         const fccS = fcc.stations.find(s => s.callsign === call);
         if (fccS) return {
@@ -116,9 +125,20 @@ export default function DuopolyView({
         dmaRank: market.dmaRank, dmaName: market.name,
       };
       return null;
-    }).filter(Boolean).slice(0, 4);
+    }).filter(Boolean);
+  }
 
-    setSelectedStations(stationObjs);
+  // "Analyze" from a single market detail card
+  const handleAnalyzeMarket = (market) => {
+    setSelectedMarkets([market]);
+    setSelectedStations(buildMarketStations(market).slice(0, 4));
+    setPanelTab('advisor');
+  };
+
+  // "Analyze selected markets" from multi-select
+  const handleAnalyzeSelectedMarkets = () => {
+    const allStns = selectedMarkets.flatMap(m => buildMarketStations(m));
+    setSelectedStations(allStns);
     setPanelTab('advisor');
   };
 
@@ -172,6 +192,9 @@ export default function DuopolyView({
         selectedStations={selectedStations}
         onClearSelection={clearSelection}
         onAnalyzeMarket={handleAnalyzeMarket}
+        selectedMarkets={selectedMarkets}
+        onToggleMarket={handleToggleMarket}
+        onAnalyzeSelectedMarkets={handleAnalyzeSelectedMarkets}
       />
     </div>
   );
