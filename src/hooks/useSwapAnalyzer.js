@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { buildSystemPrompt, setFccStations } from '../ai/systemPrompt';
 import { supabase } from '../lib/supabase';
 
@@ -11,14 +11,11 @@ export default function useSwapAnalyzer() {
   const [messages, setMessages] = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
-  const [conversationId, setConversationId] = useState(null);
-  const [conversations, setConversations] = useState([]);
   const abortRef = useRef(null);
   const systemPromptRef = useRef(null);
 
   const clientApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || '';
-  // Configured if either the Netlify function is available (production) or client key exists (local dev)
-  const apiKeyConfigured = true; // Netlify function handles the key in production
+  const apiKeyConfigured = true;
 
   // Load FCC competitor data into system prompt on mount
   useEffect(() => {
@@ -29,7 +26,7 @@ export default function useSwapAnalyzer() {
       .then(({ data }) => {
         if (data && data.length > 0) {
           setFccStations(data);
-          systemPromptRef.current = null; // force rebuild with competitor data
+          systemPromptRef.current = null;
         }
       });
   }, []);
@@ -41,64 +38,10 @@ export default function useSwapAnalyzer() {
     return systemPromptRef.current;
   }
 
-  // Load conversation list from Supabase
-  const loadConversations = useCallback(async () => {
-    if (!supabase) return;
-    const { data } = await supabase
-      .from('conversations')
-      .select('id, title, created_at')
-      .order('updated_at', { ascending: false })
-      .limit(20);
-    if (data) setConversations(data);
-  }, []);
-
-  useEffect(() => { loadConversations(); }, [loadConversations]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => { abortRef.current?.abort(); };
   }, []);
-
-  // Save a message to Supabase
-  async function persistMessage(convId, role, content) {
-    if (!supabase || !convId) return;
-    await supabase.from('messages').insert({ conversation_id: convId, role, content });
-  }
-
-  // Create or get conversation
-  async function ensureConversation(firstMessage) {
-    if (conversationId) return conversationId;
-    if (!supabase) return null;
-    const title = firstMessage.slice(0, 80) + (firstMessage.length > 80 ? '...' : '');
-    const { data } = await supabase
-      .from('conversations')
-      .insert({ title })
-      .select('id')
-      .single();
-    if (data) {
-      setConversationId(data.id);
-      loadConversations();
-      return data.id;
-    }
-    return null;
-  }
-
-  // Load a saved conversation
-  async function loadConversation(convId) {
-    if (!supabase) return;
-    abortRef.current?.abort();
-    setIsStreaming(false);
-    setError(null);
-    const { data } = await supabase
-      .from('messages')
-      .select('role, content, created_at')
-      .eq('conversation_id', convId)
-      .order('created_at', { ascending: true });
-    if (data) {
-      setMessages(data.map(m => ({ role: m.role, content: m.content })));
-      setConversationId(convId);
-    }
-  }
 
   async function sendMessage(text) {
     if (!text.trim() || isStreaming) return;
@@ -110,18 +53,15 @@ export default function useSwapAnalyzer() {
     setMessages(prev => [...prev, userMsg, assistantMsg]);
     setIsStreaming(true);
 
-    // Persist user message
-    const convId = await ensureConversation(text.trim());
-    persistMessage(convId, 'user', text.trim());
-
     const apiMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
     const systemPrompt = getSystemPrompt();
 
     const controller = new AbortController();
     abortRef.current = controller;
 
+    let fullResponse = '';
+
     try {
-      // Try Netlify function first (production), fall back to direct API (local dev)
       let res;
       try {
         res = await fetch(PROXY_PATH, {
@@ -130,11 +70,9 @@ export default function useSwapAnalyzer() {
           body: JSON.stringify({ messages: apiMessages, system: systemPrompt, model: MODEL, max_tokens: MAX_TOKENS }),
           signal: controller.signal,
         });
-        // If we get a 404, the function doesn't exist (local dev without netlify dev)
         if (res.status === 404) throw new Error('proxy not available');
       } catch (proxyErr) {
         if (proxyErr.name === 'AbortError') throw proxyErr;
-        // Fallback: direct API call (local dev)
         if (!clientApiKey) throw new Error('No API key configured. Add VITE_ANTHROPIC_API_KEY to .env.local for local dev, or deploy to Netlify.');
         res = await fetch(DIRECT_API_URL, {
           method: 'POST',
@@ -157,7 +95,6 @@ export default function useSwapAnalyzer() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
-      let fullResponse = '';
       let isSearching = false;
 
       while (true) {
@@ -190,7 +127,7 @@ export default function useSwapAnalyzer() {
               }
             }
 
-            // Web search results — extract source URLs for citations
+            // Web search results — extract source URLs
             if (parsed.type === 'content_block_start' && parsed.content_block?.type === 'web_search_tool_result') {
               isSearching = false;
               const results = parsed.content_block?.content || [];
@@ -228,30 +165,18 @@ export default function useSwapAnalyzer() {
 
             // Handle stream errors from API
             if (parsed.type === 'error') {
-              const errMsg = parsed.error?.message || 'Stream error';
-              throw new Error(errMsg);
+              throw new Error(parsed.error?.message || 'Stream error');
             }
           } catch (parseErr) {
             if (parseErr.message && parseErr.message !== 'Stream error' && !parseErr.message.includes('JSON')) {
-              throw parseErr; // re-throw real errors
+              throw parseErr;
             }
-            // skip unparseable lines
           }
-        }
-      }
-
-      // Persist assistant response
-      if (fullResponse) {
-        persistMessage(convId, 'assistant', fullResponse);
-        // Update conversation timestamp
-        if (supabase && convId) {
-          supabase.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', convId).then();
         }
       }
     } catch (err) {
       if (err.name !== 'AbortError') {
         if (fullResponse && fullResponse.length > 100) {
-          // Partial response received — keep it and append truncation note
           const note = '\n\n---\n*Analysis was truncated due to a stream error. The content above is complete up to this point. Try asking a follow-up question for the remaining sections.*';
           fullResponse += note;
           setMessages(prev => {
@@ -262,7 +187,6 @@ export default function useSwapAnalyzer() {
             }
             return next;
           });
-          persistMessage(convId, 'assistant', fullResponse);
         } else {
           setError(err.message);
           setMessages(prev => {
@@ -281,14 +205,12 @@ export default function useSwapAnalyzer() {
   function clearMessages() {
     abortRef.current?.abort();
     setMessages([]);
-    setConversationId(null);
     setError(null);
     setIsStreaming(false);
   }
 
   return {
     messages, isStreaming, error, apiKeyConfigured,
-    conversations, conversationId,
-    sendMessage, clearMessages, loadConversation, loadConversations,
+    sendMessage, clearMessages,
   };
 }

@@ -33,11 +33,8 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
   const showResults = focused && query && results.length > 0;
 
   const viewLabel = {
-    tour: 'Scripps Tour',
-    list: 'Scripps',
-    allstations: 'FCC Stations',
-    duopoly: 'M&A',
-    tv: 'TV Monitor',
+    duopoly: 'M&A Intelligence',
+    portfolio: 'Scripps Portfolio',
   };
 
   return (
@@ -98,11 +95,8 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
         <div><b>210</b><span>markets</span></div>
       </div>
       <nav className="tb-tabs">
-        <button className={view === "tour"  ? "on" : ""} onClick={() => onView("tour")}>Scripps Tour</button>
-        <button className={view === "list"  ? "on" : ""} onClick={() => onView("list")}>Scripps</button>
-        <button className={view === "allstations" ? "on" : ""} onClick={() => onView("allstations")}>FCC Stations</button>
-        <button className={view === "duopoly" ? "on" : ""} onClick={() => onView("duopoly")}>M&A</button>
-        <button className={"tv-tab" + (view === "tv" ? " on" : "")} onClick={() => onView("tv")}>TV Monitor</button>
+        <button className={view === "duopoly" ? "on" : ""} onClick={() => onView("duopoly")}>M&A Intelligence</button>
+        <button className={view === "portfolio" ? "on" : ""} onClick={() => onView("portfolio")}>Scripps Portfolio</button>
       </nav>
 
       {/* Mobile hamburger + current view label */}

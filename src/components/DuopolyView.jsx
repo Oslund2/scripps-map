@@ -61,6 +61,29 @@ export default function DuopolyView({
     }));
   }, [showAllStations, fcc.stations, fcc.loaded, ownerFilter, selectedGroups]);
 
+  // Compute DMA overlaps when 2+ groups selected
+  const overlapOverlay = useMemo(() => {
+    if (selectedGroups.length < 2 || !fcc.loaded) return [];
+    const groupSet = new Set(selectedGroups);
+    // Group stations by DMA, track which owner groups are present
+    const dmaInfo = {};
+    for (const s of fcc.stations) {
+      if (!groupSet.has(s.owner_group) || !s.dma_name) continue;
+      if (!dmaInfo[s.dma_name]) dmaInfo[s.dma_name] = { groups: new Set(), lat: s.lat, lon: s.lon, count: 0 };
+      dmaInfo[s.dma_name].groups.add(s.owner_group);
+      dmaInfo[s.dma_name].count++;
+    }
+    return Object.entries(dmaInfo)
+      .filter(([, info]) => info.groups.size >= 2)
+      .map(([dma, info]) => ({
+        dma,
+        lat: info.lat,
+        lon: info.lon,
+        count: info.count,
+        groups: [...info.groups],
+      }));
+  }, [selectedGroups, fcc.stations, fcc.loaded]);
+
   const ownerGroups = useMemo(() => {
     if (!fcc.loaded) return [];
     const groups = {};
@@ -233,6 +256,7 @@ export default function DuopolyView({
             fccStations={fccStationDots}
             onFccStationClick={handleFccStationClick}
             selectedFccStations={selectedFccSet}
+            overlapOverlay={overlapOverlay}
           />
         </div>
         <div className="globe-overlay" />

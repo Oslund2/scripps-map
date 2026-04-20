@@ -12,7 +12,7 @@ function project(lat, lon, lon0, lat0, R, cx, cy) {
   return { x, y, visible, depth: cosC };
 }
 
-export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations }) {
+export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations, overlapOverlay }) {
   const cx = 500, cy = 500, R = zoom || 420;
   const lon0 = rotation.lon;
   const lat0 = rotation.lat;
@@ -340,6 +340,31 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
                           fontWeight="600">{m.name}</text>
                   </g>
                 )}
+              </g>
+            );
+          })}
+        </g>
+      )}
+
+      {/* DMA overlap rings (pulsing) */}
+      {overlapOverlay && overlapOverlay.length > 0 && (
+        <g>
+          {overlapOverlay.map((o) => {
+            const p = project(o.lat, o.lon, lon0, lat0, R, cx, cy);
+            if (!p.visible) return null;
+            const r = Math.max(12, 8 + o.count * 4) * (R / 600);
+            return (
+              <g key={o.dma} pointerEvents="none">
+                <circle cx={p.x} cy={p.y} r={r} fill="none" stroke="#E74C3C" strokeWidth="2" opacity="0.6">
+                  <animate attributeName="r" values={`${r};${r + 16};${r}`} dur="2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx={p.x} cy={p.y} r={r} fill="rgba(231,76,60,0.12)" stroke="#E74C3C" strokeWidth="1.5" strokeDasharray="4 3" />
+                <text x={p.x} y={p.y - r - 5} textAnchor="middle"
+                      fill="#E74C3C" fontSize="9" fontFamily="'JetBrains Mono', monospace"
+                      fontWeight="600" opacity="0.8">
+                  {o.groups.length} groups
+                </text>
               </g>
             );
           })}

@@ -190,11 +190,9 @@ function buildMarketPrompt(stations) {
 export default function SwapAdvisor({ selectedStations = [], onClearSelection }) {
   const {
     messages, isStreaming, error, apiKeyConfigured,
-    conversations, conversationId,
-    sendMessage, clearMessages, loadConversation,
+    sendMessage, clearMessages,
   } = useSwapAnalyzer();
   const [input, setInput] = useState('');
-  const [showHistory, setShowHistory] = useState(false);
   const threadRef = useRef(null);
   const userAtBottom = useRef(true);
 
@@ -248,12 +246,6 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
           <button className="ai-template-btn ai-clear-btn" onClick={clearMessages}
                   disabled={isStreaming}>
             New
-          </button>
-        )}
-        {conversations.length > 0 && (
-          <button className="ai-template-btn" onClick={() => setShowHistory(h => !h)}
-                  style={showHistory ? { borderColor: 'var(--scripps-beam)', color: 'var(--scripps-beam)' } : undefined}>
-            History ({conversations.length})
           </button>
         )}
       </div>
@@ -335,20 +327,6 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
           </div>
         );
       })()}
-
-      {showHistory && (
-        <div className="ai-history">
-          <div className="eyebrow" style={{ marginBottom: 6 }}>Saved Conversations</div>
-          {conversations.map(c => (
-            <button key={c.id} className="ai-history-row"
-                    onClick={() => { loadConversation(c.id); setShowHistory(false); }}
-                    style={c.id === conversationId ? { borderColor: 'var(--scripps-beam)' } : undefined}>
-              <span className="ai-history-title">{c.title}</span>
-              <span className="ai-history-date">{new Date(c.created_at).toLocaleDateString()}</span>
-            </button>
-          ))}
-        </div>
-      )}
 
       <div className="ai-thread" ref={threadRef} onScroll={handleScroll}>
         {messages.length === 0 && !isStreaming && (
