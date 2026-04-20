@@ -102,7 +102,7 @@ export default function DuopolyView({
   const handleToggleGroup = (group) => {
     setSelectedGroups(prev => {
       if (prev.includes(group)) return prev.filter(g => g !== group);
-      if (prev.length >= 3) return prev;
+      if (prev.length >= 5) return prev;
       return [...prev, group];
     });
   };

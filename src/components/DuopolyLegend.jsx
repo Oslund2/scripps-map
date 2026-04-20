@@ -66,7 +66,7 @@ export default function DuopolyLegend({
             {ownerGroups.slice(0, 15).map(([group, count]) => {
               const isSelected = selectedGroups.includes(group);
               const isFiltered = ownerFilter === group;
-              const atMax = selectedGroups.length >= 3 && !isSelected;
+              const atMax = selectedGroups.length >= 5 && !isSelected;
               return (
                 <li key={group}
                   className={`${isFiltered ? 'on' : ''} ${isSelected ? 'duo-group-selected' : ''}`}
@@ -75,7 +75,7 @@ export default function DuopolyLegend({
                   <span
                     className={`duo-group-cb ${isSelected ? 'checked' : ''} ${atMax ? 'disabled' : ''}`}
                     onClick={(e) => { e.stopPropagation(); if (!atMax) onToggleGroup(group); }}
-                    title={atMax ? 'Max 3 groups' : isSelected ? 'Remove from merger' : 'Add to merger analysis'}
+                    title={atMax ? 'Max 5 groups' : isSelected ? 'Remove from merger' : 'Add to merger analysis'}
                   >
                     {isSelected ? '\u2713' : ''}
                   </span>
