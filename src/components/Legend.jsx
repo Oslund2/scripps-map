@@ -8,6 +8,7 @@ const TYPES = [
   ["fox", "Fox"],
   ["ion", "Ion"],
   ["ind", "Independent"],
+  ["inyo", "INYO (Pending)"],
 ];
 
 export default function Legend({ filter, onFilter, counts }) {

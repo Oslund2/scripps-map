@@ -1,0 +1,145 @@
+import { useState, useMemo, useEffect } from 'react';
+import { MARKETS, CATEGORY_META, getCategoryCounts } from '../data/markets';
+import { GROUP_COLORS } from '../data/ownerGroups';
+import Globe from './Globe';
+import DuopolyLegend from './DuopolyLegend';
+import DuopolyPanel from './DuopolyPanel';
+import useFccStations from '../hooks/useFccStations';
+
+export default function DuopolyView({
+  allStations, landGeo, rotation, zoom, setRotation, setZoom
+}) {
+  const [selectedMarket, setSelectedMarket] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState(null);
+  const [showAllStations, setShowAllStations] = useState(false);
+  const [ownerFilter, setOwnerFilter] = useState(null);
+  const [panelTab, setPanelTab] = useState('markets');
+  const [selectedStations, setSelectedStations] = useState([]);
+
+  const fcc = useFccStations();
+  const counts = useMemo(() => getCategoryCounts(), []);
+
+  useEffect(() => {
+    if (showAllStations && !fcc.loaded) fcc.load();
+  }, [showAllStations, fcc]);
+
+  // Build market overlay
+  const marketOverlay = useMemo(() => {
+    if (showAllStations) return null;
+    const filtered = categoryFilter
+      ? MARKETS.filter(m => m.category === categoryFilter)
+      : MARKETS;
+    return filtered.map(m => ({
+      id: m.id, name: m.name, lat: m.lat, lon: m.lon,
+      color: CATEGORY_META[m.category].color,
+      stationCount: m.stations.scripps.length + m.stations.inyo.length,
+    }));
+  }, [categoryFilter, showAllStations]);
+
+  // Build FCC station dots
+  const fccStationDots = useMemo(() => {
+    if (!showAllStations || !fcc.loaded) return [];
+    let filtered = fcc.stations;
+    if (ownerFilter) filtered = filtered.filter(s => s.owner_group === ownerFilter);
+    return filtered.map(s => ({
+      callsign: s.callsign, lat: s.lat, lon: s.lon,
+      city: s.city, state: s.state,
+      type: s.is_scripps ? 'scripps' : s.is_inyo ? 'inyo' : 'fcc',
+      color: GROUP_COLORS[s.owner_group] || GROUP_COLORS.Other,
+      owner: s.owner_group, network: s.network, dmaRank: s.dma_rank,
+      dmaName: s.dma_name,
+    }));
+  }, [showAllStations, fcc.stations, fcc.loaded, ownerFilter]);
+
+  const ownerGroups = useMemo(() => {
+    if (!fcc.loaded) return [];
+    const groups = {};
+    for (const s of fcc.stations) groups[s.owner_group] = (groups[s.owner_group] || 0) + 1;
+    return Object.entries(groups).sort((a, b) => b[1] - a[1]);
+  }, [fcc.stations, fcc.loaded]);
+
+  // Set of selected callsigns for globe highlight
+  const selectedFccSet = useMemo(
+    () => new Set(selectedStations.map(s => s.callsign)),
+    [selectedStations]
+  );
+
+  const handleMarketSelect = (id) => {
+    setSelectedMarket(id);
+    if (id) {
+      const m = MARKETS.find(mk => mk.id === id);
+      if (m) { setRotation({ lat: m.lat, lon: m.lon }); setZoom(800); }
+    }
+  };
+
+  const handleMarketClick = (m) => handleMarketSelect(m.id);
+
+  // Click-to-analyze: toggle station selection (max 4)
+  const handleFccStationClick = (station) => {
+    setSelectedStations(prev => {
+      const exists = prev.find(s => s.callsign === station.callsign);
+      if (exists) return prev.filter(s => s.callsign !== station.callsign);
+      if (prev.length >= 4) return prev;
+      return [...prev, station];
+    });
+    // Auto-switch to AI Advisor on first selection
+    if (!selectedFccSet.has(station.callsign) && selectedStations.length === 0) {
+      setPanelTab('advisor');
+    }
+  };
+
+  const clearSelection = () => setSelectedStations([]);
+
+  return (
+    <div className="stage duopoly-stage">
+      <DuopolyLegend
+        filter={categoryFilter}
+        onFilter={setCategoryFilter}
+        counts={counts}
+        showAllStations={showAllStations}
+        onToggleAllStations={() => { setShowAllStations(v => !v); setOwnerFilter(null); }}
+        ownerGroups={ownerGroups}
+        ownerFilter={ownerFilter}
+        onOwnerFilter={setOwnerFilter}
+        fccLoading={fcc.loading}
+        fccCount={fcc.stations.length}
+      />
+      <div className="globe-wrap">
+        <div className="globe-canvas">
+          <Globe
+            stations={showAllStations ? [] : allStations}
+            landGeo={landGeo}
+            route={[]}
+            focusIdx={-1}
+            rotation={rotation}
+            zoom={zoom}
+            showLogos={false}
+            marketOverlay={marketOverlay}
+            onMarketClick={handleMarketClick}
+            selectedMarket={selectedMarket}
+            fccStations={fccStationDots}
+            onFccStationClick={handleFccStationClick}
+            selectedFccStations={selectedFccSet}
+          />
+        </div>
+        <div className="globe-overlay" />
+        {/* Selection mode indicator */}
+        {panelTab === 'advisor' && showAllStations && (
+          <div className="globe-select-badge">
+            Select stations ({selectedStations.length}/4)
+          </div>
+        )}
+      </div>
+      <DuopolyPanel
+        selectedMarket={selectedMarket}
+        onSelectMarket={handleMarketSelect}
+        allStations={allStations}
+        categoryFilter={categoryFilter}
+        panelTab={panelTab}
+        onPanelTab={setPanelTab}
+        selectedStations={selectedStations}
+        onClearSelection={clearSelection}
+      />
+    </div>
+  );
+}

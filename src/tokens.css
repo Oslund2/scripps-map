@@ -52,6 +52,16 @@
   --accent:    var(--scripps-beam);
   --live:      var(--scripps-dawn);
 
+  /* ============ DUOPOLY / M&A ============ */
+  --duo-existing:    #FFB81C;
+  --duo-new:         #27AE60;
+  --duo-expanded:    #2ECC71;
+  --duo-opportunity: #3498DB;
+  --duo-new-market:  #7F8C8D;
+  --duo-pass:        #27AE60;
+  --duo-fail:        #E74C3C;
+  --duo-inyo:        #9B59B6;
+
   /* ============ RADII ============ */
   --r-xs: 2px;
   --r-sm: 4px;

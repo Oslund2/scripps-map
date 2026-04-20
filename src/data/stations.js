@@ -88,6 +88,34 @@ export const SCRIPPS_STATIONS = [
   { callsign: "KWPX",  type: "ion",      city: "Seattle",              state: "WA", lat: 47.6062, lon: -122.3321, affiliation: "Ion Television",   logo: null },
   { callsign: "KPXG",  type: "ion",      city: "Portland",             state: "OR", lat: 45.5152, lon: -122.6784, affiliation: "Ion Television",   logo: null },
   { callsign: "KSPX",  type: "ion",      city: "Sacramento",           state: "CA", lat: 38.5816, lon: -121.4944, affiliation: "Ion Television",   logo: null },
+
+  // ===== INYO BROADCAST HOLDINGS (Pending Scripps acquisition — $54M, Feb 2026) =====
+  // 23 stations divested during 2021 ION Media acquisition, now being re-acquired.
+  // Overlapping Scripps markets
+  { callsign: "KTRV",  type: "inyo",     city: "Boise",                state: "ID", lat: 43.6150, lon: -116.2023, affiliation: "ION Television",   logo: null, notes: "INYO — new duopoly w/ KIVI" },
+  { callsign: "WPXJ",  type: "inyo",     city: "Buffalo",              state: "NY", lat: 42.8864, lon: -78.8784,  affiliation: "ION Television",   logo: null, notes: "INYO — new duopoly w/ WKBW" },
+  { callsign: "WVPX",  type: "inyo",     city: "Cleveland",            state: "OH", lat: 41.4993, lon: -81.6944,  affiliation: "ION Television",   logo: null, notes: "INYO — new duopoly w/ WEWS" },
+  { callsign: "WDLI",  type: "inyo",     city: "Canton",               state: "OH", lat: 40.7989, lon: -81.3784,  affiliation: "Bounce TV",        logo: null, notes: "INYO — Cleveland DMA" },
+  { callsign: "WZPX",  type: "inyo",     city: "Grand Rapids",         state: "MI", lat: 42.9634, lon: -85.6681,  affiliation: "ION Television",   logo: null, notes: "INYO — new duopoly w/ WXMI" },
+  { callsign: "KPXE",  type: "inyo",     city: "Kansas City",          state: "MO", lat: 39.0997, lon: -94.5786,  affiliation: "ION Television",   logo: null, notes: "INYO — new duopoly w/ KSHB" },
+  { callsign: "KPXC",  type: "inyo",     city: "Denver",               state: "CO", lat: 39.7392, lon: -104.9903, affiliation: "ION Television",   logo: null, notes: "INYO — expands KMGH+KCDO duopoly" },
+  { callsign: "WPXD",  type: "inyo",     city: "Detroit",              state: "MI", lat: 42.3314, lon: -83.0458,  affiliation: "ION Television",   logo: null, notes: "INYO — expands WXYZ+WMYD duopoly" },
+  { callsign: "WUPX",  type: "inyo",     city: "Lexington",            state: "KY", lat: 38.0406, lon: -84.5037,  affiliation: "ION Television",   logo: null, notes: "INYO — expands WLEX+WTVQ duopoly" },
+  { callsign: "WPXV",  type: "inyo",     city: "Norfolk",              state: "VA", lat: 36.8508, lon: -76.2859,  affiliation: "ION Television",   logo: null, notes: "INYO — expands WTKR+WGNT duopoly" },
+  { callsign: "KPPX",  type: "inyo",     city: "Phoenix",              state: "AZ", lat: 33.4484, lon: -112.0740, affiliation: "ION Television",   logo: null, notes: "INYO — expands KNXV+KASW duopoly" },
+  { callsign: "WPXP",  type: "inyo",     city: "West Palm Beach",      state: "FL", lat: 26.7153, lon: -80.0534,  affiliation: "ION Television",   logo: null, notes: "INYO — expands WPTV+WFLX+WHDT" },
+  // New markets (no existing Scripps local presence)
+  { callsign: "WYPX",  type: "inyo",     city: "Albany",               state: "NY", lat: 42.6526, lon: -73.7562,  affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
+  { callsign: "WPXH",  type: "inyo",     city: "Birmingham",           state: "AL", lat: 33.5207, lon: -86.8025,  affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
+  { callsign: "WGPX",  type: "inyo",     city: "Greensboro",           state: "NC", lat: 36.0726, lon: -79.7920,  affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
+  { callsign: "WHPX",  type: "inyo",     city: "Hartford",             state: "CT", lat: 41.7658, lon: -72.6734,  affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
+  { callsign: "KPXO",  type: "inyo",     city: "Honolulu",             state: "HI", lat: 21.3069, lon: -157.8583, affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
+  { callsign: "WIPX",  type: "inyo",     city: "Indianapolis",         state: "IN", lat: 39.7684, lon: -86.1581,  affiliation: "ION Television",   logo: null, notes: "INYO — WRTV sold to clear" },
+  { callsign: "WCLJ",  type: "inyo",     city: "Indianapolis",         state: "IN", lat: 39.7684, lon: -86.1581,  affiliation: "Bounce TV",        logo: null, notes: "INYO — Indianapolis duo" },
+  { callsign: "WPXX",  type: "inyo",     city: "Memphis",              state: "TN", lat: 35.1495, lon: -90.0490,  affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
+  { callsign: "KOPX",  type: "inyo",     city: "Oklahoma City",        state: "OK", lat: 35.4676, lon: -97.5164,  affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
+  { callsign: "WLWC",  type: "inyo",     city: "Providence",           state: "RI", lat: 41.8240, lon: -71.4128,  affiliation: "Bounce TV",        logo: null, notes: "INYO — new market" },
+  { callsign: "KGPX",  type: "inyo",     city: "Spokane",              state: "WA", lat: 47.6588, lon: -117.4260, affiliation: "ION Television",   logo: null, notes: "INYO — new market" },
 ];
 
 // Driving tour — every station & operation, shortest highway route.
@@ -267,13 +295,15 @@ export function getAffilColor(type) {
   const m = {
     abc: "#ffffff", nbc: "#4A9CFF", cbs: "#6FB5FF", fox: "#F37021",
     ion: "#F58220", ind: "#B9B0A0", hq: "#FFB81C", event: "#FFB81C",
+    inyo: "#9B59B6",
   };
   return m[type] || "#ffffff";
 }
 
 export function affilLabel(t) {
   const m = { abc: "ABC", nbc: "NBC", cbs: "CBS", fox: "Fox", ion: "Ion",
-              ind: "Independent", hq: "HQ / Operations", event: "Event" };
+              ind: "Independent", hq: "HQ / Operations", event: "Event",
+              inyo: "INYO (Pending)" };
   return m[t] || t;
 }
 

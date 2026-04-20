@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { getAffilColor } from '../data/stations';
 
 function project(lat, lon, lon0, lat0, R, cx, cy) {
@@ -12,10 +12,11 @@ function project(lat, lon, lon0, lat0, R, cx, cy) {
   return { x, y, visible, depth: cosC };
 }
 
-export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected }) {
+export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations }) {
   const cx = 500, cy = 500, R = zoom || 420;
   const lon0 = rotation.lon;
   const lat0 = rotation.lat;
+  const [hovered, setHovered] = useState(null);
 
   // Project land polygons
   const landPaths = useMemo(() => {
@@ -117,6 +118,18 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
           <feGaussianBlur stdDeviation="2.5" result="b" />
           <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
+        {showLogos && stations.map((s) => {
+          if (!s.logo) return null;
+          const p = project(s.lat, s.lon, lon0, lat0, R, cx, cy);
+          if (!p.visible || R <= 400) return null;
+          const isSel = selected === s.callsign;
+          const lr = isSel ? Math.max(18, R * 0.026) : Math.max(11, R * 0.015);
+          return (
+            <clipPath key={s.callsign} id={`lc-${s.callsign}`}>
+              <circle cx={p.x} cy={p.y} r={lr - 1} />
+            </clipPath>
+          );
+        })}
       </defs>
 
       {/* atmosphere halo */}
@@ -148,6 +161,59 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
         ))}
       </g>
 
+      {/* FCC all-stations layer */}
+      {fccStations && fccStations.length > 0 && (
+        <g>
+          {fccStations.map((s) => {
+            const p = project(s.lat, s.lon, lon0, lat0, R, cx, cy);
+            if (!p.visible) return null;
+            const isScripps = s.type === 'scripps' || s.type === 'inyo';
+            const isSel = selectedFccStations && selectedFccStations.has(s.callsign);
+            const r = isSel ? 4.5 : (isScripps ? 3.5 : 2.2);
+            return (
+              <g key={s.callsign} style={{ cursor: "pointer" }}
+                 onClick={() => onFccStationClick && onFccStationClick(s)}
+                 onMouseEnter={() => setHovered("fcc-" + s.callsign)}
+                 onMouseLeave={() => setHovered(null)}>
+                {isSel && (
+                  <circle cx={p.x} cy={p.y} r={r + 8} fill="none" stroke="#FFB81C" strokeWidth="1.5" opacity="0.7">
+                    <animate attributeName="r" values={`${r+4};${r+16};${r+4}`} dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.8;0;0.8" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                )}
+                <circle cx={p.x} cy={p.y} r={r + 1} fill="rgba(6,24,51,0.6)" />
+                <circle cx={p.x} cy={p.y} r={r} fill={isSel ? "#FFB81C" : s.color}
+                        stroke={isSel ? "#FFB81C" : isScripps ? "#FFB81C" : "rgba(255,255,255,0.3)"}
+                        strokeWidth={isSel ? 2 : isScripps ? 1 : 0.4} />
+                {isSel && (
+                  <text x={p.x} y={p.y + 3.5} textAnchor="middle" fill="#0B2545" fontSize="7"
+                        fontFamily="'JetBrains Mono', monospace" fontWeight="800" pointerEvents="none">
+                    {[...selectedFccStations].indexOf(s.callsign) + 1}
+                  </text>
+                )}
+                {hovered === "fcc-" + s.callsign && (() => {
+                  const label = `${s.callsign} (${s.owner})`;
+                  const sub = `${s.network || ''} ${s.city}, ${s.state}`.trim();
+                  const tw = Math.max(label.length * 7, sub.length * 6) + 16;
+                  return (
+                    <g pointerEvents="none">
+                      <rect x={p.x + 8} y={p.y - 18} width={tw} height={34}
+                            rx={4} fill="rgba(6,24,51,0.92)" stroke={isSel ? "#FFB81C" : s.color} strokeWidth="0.7" />
+                      <text x={p.x + 16} y={p.y - 3}
+                            fill={isSel ? "#FFB81C" : s.color} fontSize="11" fontFamily="'JetBrains Mono', monospace"
+                            fontWeight="600">{label}</text>
+                      <text x={p.x + 16} y={p.y + 11}
+                            fill="rgba(255,255,255,0.65)" fontSize="10" fontFamily="'Inter Tight', sans-serif"
+                            >{sub}</text>
+                    </g>
+                  );
+                })()}
+              </g>
+            );
+          })}
+        </g>
+      )}
+
       {/* stations */}
       <g>
         {stations.map((s) => {
@@ -156,28 +222,59 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
           const isSelected = selected === s.callsign;
           const isHQ = s.type === "hq";
           const color = getAffilColor(s.type);
+          const hasLogo = showLogos && s.logo && R > 400;
+          const logoR = hasLogo ? (isSelected ? Math.max(18, R * 0.026) : Math.max(11, R * 0.015)) : 0;
           const rdot = isHQ ? 5.5 : (isSelected ? 4.5 : 3);
           return (
             <g key={s.callsign} style={{ cursor: "pointer" }}
-               onClick={() => onStationClick && onStationClick(s)}>
+               onClick={() => onStationClick && onStationClick(s)}
+               onMouseEnter={() => setHovered(s.callsign)}
+               onMouseLeave={() => setHovered(null)}>
               {isSelected && (
-                <circle cx={p.x} cy={p.y} r={14} fill="none" stroke="#FFB81C" strokeWidth="1.2" opacity="0.9">
-                  <animate attributeName="r" values="8;22;8" dur="2.2s" repeatCount="indefinite" />
+                <circle cx={p.x} cy={p.y} r={hasLogo ? logoR + 8 : 14} fill="none" stroke="#FFB81C" strokeWidth="1.2" opacity="0.9">
+                  <animate attributeName="r" values={hasLogo ? `${logoR+4};${logoR+24};${logoR+4}` : "8;22;8"} dur="2.2s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="0.95;0;0.95" dur="2.2s" repeatCount="indefinite" />
                 </circle>
               )}
-              {isHQ && (
+              {isHQ && !isSelected && (
                 <circle cx={p.x} cy={p.y} r={10} fill="none" stroke="#FFB81C" strokeWidth="1" opacity="0.6">
                   <animate attributeName="r" values="6;18;6" dur="3s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="0.7;0;0.7" dur="3s" repeatCount="indefinite" />
                 </circle>
               )}
-              <circle cx={p.x} cy={p.y} r={rdot + 1.5} fill="rgba(11,37,69,0.8)" />
-              <circle cx={p.x} cy={p.y} r={rdot} fill={color}
-                      stroke={isSelected || isHQ ? "#FFB81C" : "rgba(255,255,255,0.6)"}
-                      strokeWidth={isSelected || isHQ ? 1.2 : 0.6}
-                      filter={isSelected ? "url(#glow)" : undefined} />
-              {(isSelected || isHQ) && (
+              {hasLogo ? (
+                <>
+                  <circle cx={p.x} cy={p.y} r={logoR + 2} fill="rgba(6,24,51,0.85)" />
+                  <circle cx={p.x} cy={p.y} r={logoR} fill="white"
+                          stroke={isSelected ? "#FFB81C" : "rgba(255,255,255,0.5)"}
+                          strokeWidth={isSelected ? 2.5 : 1} />
+                  <image
+                    href={`/assets/stations/${s.logo}`}
+                    x={p.x - (logoR - 2)} y={p.y - (logoR - 2)}
+                    width={(logoR - 2) * 2} height={(logoR - 2) * 2}
+                    clipPath={`url(#lc-${s.callsign})`}
+                    preserveAspectRatio="xMidYMid meet"
+                  />
+                </>
+              ) : (
+                <>
+                  <circle cx={p.x} cy={p.y} r={rdot + 1.5} fill="rgba(11,37,69,0.8)" />
+                  <circle cx={p.x} cy={p.y} r={rdot} fill={color}
+                          stroke={isSelected || isHQ ? "#FFB81C" : "rgba(255,255,255,0.6)"}
+                          strokeWidth={isSelected || isHQ ? 1.2 : 0.6}
+                          filter={isSelected ? "url(#glow)" : undefined} />
+                </>
+              )}
+              {hasLogo && isSelected && (
+                <g pointerEvents="none">
+                  <rect x={p.x + logoR + 6} y={p.y - 13} width={s.callsign.length * 9 + 16} height={26}
+                        rx={4} fill="rgba(6,24,51,0.9)" stroke="rgba(255,184,28,0.5)" strokeWidth="0.8" />
+                  <text x={p.x + logoR + 14} y={p.y + 4}
+                        fill="#FAF7F2" fontSize="14" fontFamily="'JetBrains Mono', monospace"
+                        fontWeight="600" letterSpacing="0.04em">{s.callsign}</text>
+                </g>
+              )}
+              {!hasLogo && (isSelected || isHQ) && (
                 <g pointerEvents="none">
                   <rect x={p.x + 10} y={p.y - 18} width={s.callsign.length * 7 + 14} height={20}
                         rx={3} fill="rgba(6,24,51,0.88)" stroke="rgba(255,184,28,0.4)" strokeWidth="0.5" />
@@ -186,10 +283,68 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
                         letterSpacing="0.04em">{s.callsign}</text>
                 </g>
               )}
+              {hovered === s.callsign && !isSelected && !(isHQ && !hasLogo) && (() => {
+                const tx = p.x + (hasLogo ? logoR + 8 : 12);
+                const tw = Math.max(s.callsign.length * 8, (s.city + ", " + s.state).length * 6.2) + 18;
+                return (
+                  <g pointerEvents="none">
+                    <rect x={tx} y={p.y - 18} width={tw} height={34}
+                          rx={4} fill="rgba(6,24,51,0.92)" stroke="rgba(255,184,28,0.25)" strokeWidth="0.7" />
+                    <text x={tx + 9} y={p.y - 3}
+                          fill="#FFB81C" fontSize="12" fontFamily="'JetBrains Mono', monospace"
+                          fontWeight="600" letterSpacing="0.03em">{s.callsign}</text>
+                    <text x={tx + 9} y={p.y + 11}
+                          fill="rgba(255,255,255,0.7)" fontSize="10" fontFamily="'Inter Tight', sans-serif"
+                          >{s.city}, {s.state}</text>
+                  </g>
+                );
+              })()}
             </g>
           );
         })}
       </g>
+
+      {/* market overlay circles (M&A view) */}
+      {marketOverlay && (
+        <g>
+          {marketOverlay.map((m) => {
+            const p = project(m.lat, m.lon, lon0, lat0, R, cx, cy);
+            if (!p.visible) return null;
+            const isSel = selectedMarket === m.id;
+            const count = m.stationCount || 1;
+            const r = Math.max(8, 5 + count * 3.5) * (R / 600);
+            return (
+              <g key={m.id} style={{ cursor: "pointer" }}
+                 onClick={() => onMarketClick && onMarketClick(m)}
+                 onMouseEnter={() => setHovered("mkt-" + m.id)}
+                 onMouseLeave={() => setHovered(null)}>
+                {isSel && (
+                  <circle cx={p.x} cy={p.y} r={r + 10} fill="none" stroke="#FFB81C" strokeWidth="1.5" opacity="0.7">
+                    <animate attributeName="r" values={`${r+6};${r+18};${r+6}`} dur="2.2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.7;0;0.7" dur="2.2s" repeatCount="indefinite" />
+                  </circle>
+                )}
+                <circle cx={p.x} cy={p.y} r={r + 2} fill="rgba(6,24,51,0.7)" />
+                <circle cx={p.x} cy={p.y} r={r} fill={m.color} fillOpacity={0.3}
+                        stroke={isSel ? "#FFB81C" : m.color} strokeWidth={isSel ? 2.5 : 1.5} />
+                <text x={p.x} y={p.y + 3.5} textAnchor="middle"
+                      fill="white" fontSize={Math.max(8, r * 0.7)} fontFamily="'JetBrains Mono', monospace"
+                      fontWeight="700" pointerEvents="none">{count}</text>
+                {(isSel || hovered === "mkt-" + m.id) && (
+                  <g pointerEvents="none">
+                    <rect x={p.x + r + 6} y={p.y - 12}
+                          width={m.name.length * 7.5 + 16} height={24}
+                          rx={4} fill="rgba(6,24,51,0.92)" stroke={m.color} strokeWidth="0.8" />
+                    <text x={p.x + r + 14} y={p.y + 3}
+                          fill="white" fontSize="12" fontFamily="'JetBrains Mono', monospace"
+                          fontWeight="600">{m.name}</text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
+        </g>
+      )}
 
       {/* rim */}
       <circle cx={cx} cy={cy} r={R} fill="none" stroke="rgba(255,184,28,0.18)" strokeWidth="1" />

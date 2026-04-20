@@ -5,6 +5,8 @@ import StationCard from './components/StationCard';
 import TopBar from './components/TopBar';
 import Legend from './components/Legend';
 import StationList from './components/StationList';
+import TVMonitor from './components/TVMonitor';
+import DuopolyView from './components/DuopolyView';
 
 // ============ CAMERA SYSTEM ============
 // Think in three shot types, like a film director:
@@ -122,6 +124,11 @@ export default function App() {
   useEffect(() => { rotRef.current = rotation; }, [rotation]);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
+  // Auto-play when entering TV mode
+  useEffect(() => {
+    if (view === "tv") setPlaying(true);
+  }, [view]);
+
   // ============ MAIN ANIMATION EFFECT ============
   useEffect(() => {
     if (!current) return;
@@ -210,12 +217,12 @@ export default function App() {
   // Auto-play: animation duration + dwell pause
   useEffect(() => {
     if (!playing) return;
-    const wait = animDurRef.current + DWELL_PAUSE;
+    const wait = animDurRef.current + (view === "tv" ? 3500 : DWELL_PAUSE);
     const id = setTimeout(() => {
       setFocusIdx(i => (i + 1) % tourStations.length);
     }, wait);
     return () => clearTimeout(id);
-  }, [playing, focusIdx, tourStations.length]);
+  }, [playing, focusIdx, tourStations.length, view]);
 
   // Keyboard controls
   useEffect(() => {
@@ -229,6 +236,14 @@ export default function App() {
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [tourStations.length]);
+
+  // Escape key exits TV mode
+  useEffect(() => {
+    if (view !== "tv") return;
+    const h = (e) => { if (e.key === "Escape") setView("tour"); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [view]);
 
   // Load land GeoJSON (Natural Earth 110m)
   const [landGeo, setLandGeo] = useState(null);
@@ -277,7 +292,62 @@ export default function App() {
     if (idx >= 0) setFocusIdx(idx);
   };
 
+  const onSearchSelect = (s) => {
+    const idx = tourStations.findIndex(t => t.callsign === s.callsign);
+    if (idx >= 0) {
+      setFocusIdx(idx);
+      if (view === "list") setView("tour");
+    } else {
+      setRotation({ lat: s.lat, lon: s.lon });
+      setZoom(R_CLOSE);
+      if (view !== "globe") setView("globe");
+    }
+  };
+
   const nextStation = tourStations[(focusIdx + 1) % tourStations.length];
+
+  if (view === "duopoly") {
+    return (
+      <div className="app">
+        <TopBar
+          stationCount={stations.length}
+          tourCount={tourStations.length}
+          view={view}
+          onView={setView}
+          allStations={stations}
+          onStationSelect={onSearchSelect}
+        />
+        <DuopolyView
+          allStations={stations}
+          landGeo={landGeo}
+          rotation={rotation}
+          zoom={zoom}
+          setRotation={setRotation}
+          setZoom={setZoom}
+        />
+      </div>
+    );
+  }
+
+  if (view === "tv") {
+    return (
+      <TVMonitor
+        stations={visibleStations}
+        tourStations={tourStations}
+        landGeo={landGeo}
+        focusIdx={focusIdx}
+        rotation={rotation}
+        zoom={zoom}
+        playing={playing}
+        current={current}
+        nextStation={nextStation}
+        onStationClick={onStationClick}
+        setFocusIdx={setFocusIdx}
+        setPlaying={setPlaying}
+        onExit={() => setView("tour")}
+      />
+    );
+  }
 
   return (
     <div className="app">
@@ -286,6 +356,8 @@ export default function App() {
         tourCount={tourStations.length}
         view={view}
         onView={setView}
+        allStations={stations}
+        onStationSelect={onSearchSelect}
       />
       {view === "list" ? (
         <div className="stage">
@@ -309,6 +381,7 @@ export default function App() {
                 zoom={zoom}
                 onStationClick={onStationClick}
                 selected={current?.callsign}
+                showLogos={true}
               />
             </div>
             <div className="globe-overlay" />
