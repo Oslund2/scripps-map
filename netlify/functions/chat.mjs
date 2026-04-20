@@ -1,5 +1,6 @@
 // Netlify serverless function — proxies Claude API calls
 // API key stays server-side, never exposed to browser
+// Includes Anthropic web search tool for live headline retrieval
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
 
@@ -26,13 +27,21 @@ export default async (req) => {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'web-search-2025-03-05',
       },
       body: JSON.stringify({
         model: model || 'claude-sonnet-4-20250514',
-        max_tokens: max_tokens || 4096,
+        max_tokens: max_tokens || 8096,
         stream: true,
         system,
         messages,
+        tools: [
+          {
+            type: 'web_search_20250305',
+            name: 'web_search',
+            max_uses: 5,
+          },
+        ],
       }),
     });
 

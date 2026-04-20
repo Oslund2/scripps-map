@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 const DIRECT_API_URL = 'https://api.anthropic.com/v1/messages';
 const PROXY_PATH = '/api/chat';
 const MODEL = 'claude-sonnet-4-20250514';
-const MAX_TOKENS = 4096;
+const MAX_TOKENS = 8096;
 
 export default function useSwapAnalyzer() {
   const [messages, setMessages] = useState([]);
@@ -158,6 +158,7 @@ export default function useSwapAnalyzer() {
       const decoder = new TextDecoder();
       let buffer = '';
       let fullResponse = '';
+      let isSearching = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -173,7 +174,49 @@ export default function useSwapAnalyzer() {
           if (data === '[DONE]') continue;
           try {
             const parsed = JSON.parse(data);
+
+            // Web search: show searching indicator
+            if (parsed.type === 'content_block_start' && parsed.content_block?.type === 'server_tool_use') {
+              if (!isSearching) {
+                isSearching = true;
+                const searchNote = '\n\n*Searching for latest news...*\n\n';
+                fullResponse += searchNote;
+                setMessages(prev => {
+                  const next = [...prev];
+                  const last = next[next.length - 1];
+                  next[next.length - 1] = { ...last, content: last.content + searchNote };
+                  return next;
+                });
+              }
+            }
+
+            // Web search results — extract source URLs for citations
+            if (parsed.type === 'content_block_start' && parsed.content_block?.type === 'web_search_tool_result') {
+              isSearching = false;
+              const results = parsed.content_block?.content || [];
+              if (results.length > 0) {
+                let sourcesNote = '';
+                for (const r of results) {
+                  if (r.type === 'web_search_result' && r.url && r.title) {
+                    sourcesNote += `> [${r.title}](${r.url})\n`;
+                  }
+                }
+                if (sourcesNote) {
+                  sourcesNote = '\n**Sources found:**\n' + sourcesNote + '\n';
+                  fullResponse += sourcesNote;
+                  setMessages(prev => {
+                    const next = [...prev];
+                    const last = next[next.length - 1];
+                    next[next.length - 1] = { ...last, content: last.content + sourcesNote };
+                    return next;
+                  });
+                }
+              }
+            }
+
+            // Normal text delta
             if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+              isSearching = false;
               fullResponse += parsed.delta.text;
               setMessages(prev => {
                 const next = [...prev];

@@ -8,8 +8,11 @@ function renderCitations(text) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/\(i(\d)\)/g, '<sup class="ai-cite" title="Source $1">i$1</sup>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/^### (.+)$/gm, '<div class="ai-h3">$1</div>')
     .replace(/^## (.+)$/gm, '<div class="ai-h2">$1</div>')
+    .replace(/^&gt; \[(.+?)\]\((.+?)\)$/gm, '<div class="ai-source"><a href="$2" target="_blank" rel="noopener">$1</a></div>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener" class="ai-link">$1</a>')
     .replace(/^---$/gm, '<hr class="ai-hr" />')
     .replace(/\n/g, '<br/>');
   return html;

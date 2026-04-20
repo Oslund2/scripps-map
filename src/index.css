@@ -1369,6 +1369,12 @@ body {
 .ai-h2 { font-size: 15px; font-weight: 700; color: white; margin: 8px 0 4px; }
 .ai-h3 { font-size: 13px; font-weight: 600; color: var(--scripps-beam); margin: 6px 0 3px; }
 .ai-hr { border: none; border-top: 1px solid var(--line-on-dark); margin: 8px 0; }
+.ai-source {
+  padding: 2px 8px; margin: 2px 0; border-left: 2px solid rgba(255,184,28,0.3);
+  font-size: 11px; line-height: 1.4;
+}
+.ai-source a, .ai-link { color: #5DADE2; text-decoration: none; }
+.ai-source a:hover, .ai-link:hover { text-decoration: underline; color: #85C1E9; }
 
 .ai-key-notice code {
   font-family: var(--font-mono);
