@@ -91,6 +91,82 @@ Provide a comprehensive M&A analysis:
 Cite all data points with (i1)-(i5) markers.`;
 }
 
+function buildDealsPrompt(stations) {
+  const byOwner = {};
+  for (const s of stations) {
+    (byOwner[s.owner] = byOwner[s.owner] || []).push(s);
+  }
+  const groups = Object.keys(byOwner);
+
+  let groupSections = '';
+  for (const group of groups) {
+    const stns = byOwner[group];
+    const byDma = {};
+    for (const s of stns) {
+      const key = s.dmaName || s.city + ', ' + s.state;
+      (byDma[key] = byDma[key] || []).push(s);
+    }
+    const dmas = Object.entries(byDma).sort((a, b) => (a[1][0]?.dmaRank || 999) - (b[1][0]?.dmaRank || 999));
+    groupSections += `\n### ${group} (${stns.length} stations, ${dmas.length} markets)\n`;
+    for (const [dma, dStns] of dmas.slice(0, 20)) {
+      const rank = dStns[0]?.dmaRank || '?';
+      const nets = dStns.map(s => `${s.callsign} ${s.network || '?'}`).join(', ');
+      groupSections += `- **${dma}** (#${rank}): ${nets}\n`;
+    }
+    if (dmas.length > 20) groupSections += `- ... and ${dmas.length - 20} more markets\n`;
+  }
+
+  // Pre-compute DMA overlaps
+  const dmasByGroup = {};
+  for (const group of groups) {
+    dmasByGroup[group] = new Set(byOwner[group].map(s => s.dmaName || s.city + ', ' + s.state));
+  }
+  let overlapSection = '\n### DMA Overlaps (where deals are most likely)\n';
+  const allDmas = new Set(stations.map(s => s.dmaName || s.city + ', ' + s.state));
+  let overlapCount = 0;
+  for (const dma of allDmas) {
+    const presentIn = groups.filter(g => dmasByGroup[g].has(dma));
+    if (presentIn.length >= 2) {
+      overlapCount++;
+      const stnsInDma = stations.filter(s => (s.dmaName || s.city + ', ' + s.state) === dma);
+      const detail = stnsInDma.map(s => `${s.callsign} (${s.owner}, ${s.network || '?'})`).join(', ');
+      overlapSection += `- **${dma}**: ${presentIn.join(' + ')} — ${detail}\n`;
+    }
+  }
+  if (overlapCount === 0) overlapSection += '- No direct DMA overlaps found\n';
+
+  return `## Deal Analysis: ${groups.join(' / ')}
+
+These ${groups.length} groups are NOT merging. Identify the best station-level DEALS between them — swaps, sales, and acquisitions that create value for ALL parties.
+${groupSections}
+${overlapSection}
+
+**Find and rank the best deals:**
+
+**1. Swaps** — Group A trades station X to Group B for station Y. Look for: one group has a standalone in a market where another already has presence (duopoly play for the receiver). Each swap should be value-balanced or include a cash kicker.
+
+**2. Sales** — Group A sells a non-core station to Group B who can use it. Look for: small standalones with no duopoly path for the seller, but strategic value for a buyer who already has market presence.
+
+**3. Acquisitions** — Group A should buy station X from Group B. Look for: markets where the buyer has a top-4 affiliate and the target is CW/indie/ION (clean FCC path to duopoly).
+
+**For EACH deal provide:**
+- Stations involved (callsigns, from whom to whom)
+- DMA, market rank, TV households
+- Deal type: Swap / Sale / Acquisition
+- Estimated deal value (using revenue estimates + broadcast M&A multiples)
+- Revenue impact per party (annual ad + retrans change)
+- Does it create a new duopoly? For whom?
+- FCC compliance: top-4 test + 8-voice test
+- Regulatory risk: LOW / MEDIUM / HIGH
+- Strategic rationale
+
+**Then rank ALL deals by total value created** across all parties (revenue increases + margin gains + exit price uplift). Show a scorecard table. Identify the single best deal they could execute tomorrow, and flag any deal that should NOT happen.
+
+If deals are complementary, propose a multi-deal package.
+
+Cite data with (i1)-(i5) markers.`;
+}
+
 function buildMarketPrompt(stations) {
   // Group stations by DMA/market
   const byMarket = {};
@@ -184,26 +260,30 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
 
       {/* Station selection bar */}
       {selectedStations.length > 0 && (() => {
-        // Detect merger mode (from group multi-select)
-        const isMerger = selectedStations.length > 0 && selectedStations[0]?._mergerGroup;
+        // Detect merger or deals mode (from group multi-select)
+        const isMerger = selectedStations[0]?._mergerGroup;
+        const isDeals = selectedStations[0]?._dealsMode;
 
-        if (isMerger) {
-          // Group by owner for merger display
+        if (isMerger || isDeals) {
           const byOwner = {};
           for (const s of selectedStations) {
             (byOwner[s.owner] = byOwner[s.owner] || []).push(s);
           }
           const ownerNames = Object.keys(byOwner);
-          const prompt = buildMergerPrompt(selectedStations);
+          const prompt = isDeals ? buildDealsPrompt(selectedStations) : buildMergerPrompt(selectedStations);
+          const label = isDeals ? 'Deal Analysis' : 'Merger Analysis';
+          const btnLabel = isDeals
+            ? `Analyze Deals: ${ownerNames.join(' / ')}`
+            : `Analyze ${ownerNames.join(' + ')} Merger`;
           return (
-            <div className="ai-selection-bar ai-merger-bar">
+            <div className={`ai-selection-bar ai-merger-bar ${isDeals ? 'ai-deals-bar' : ''}`}>
               <div className="ai-sel-header">
-                <span className="eyebrow">Merger Analysis</span>
+                <span className="eyebrow">{label}</span>
                 <button className="ai-sel-clear" onClick={onClearSelection}>Clear</button>
               </div>
               <div className="ai-sel-pills">
                 {ownerNames.map(name => (
-                  <span key={name} className="ai-sel-pill ai-merger-pill">
+                  <span key={name} className={`ai-sel-pill ${isDeals ? 'ai-deals-pill' : 'ai-merger-pill'}`}>
                     <b>{name}</b>
                     <span className="ai-sel-meta">{byOwner[name].length} stations</span>
                   </span>
@@ -211,7 +291,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
               </div>
               <button className="ai-analyze-btn" disabled={isStreaming}
                       onClick={() => { sendMessage(prompt); userAtBottom.current = true; }}>
-                Analyze {ownerNames.join(' + ')} Merger
+                {btnLabel}
               </button>
             </div>
           );

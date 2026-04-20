@@ -114,7 +114,7 @@ export default function DuopolyPanel({
   selectedMarkets = [], onToggleMarket, onAnalyzeSelectedMarkets,
   // Mobile group selection props
   showAllStations, onToggleAllStations, ownerGroups = [], ownerFilter, onOwnerFilter,
-  fccLoading, fccCount, selectedGroups = [], onToggleGroup, onAnalyzeGroups,
+  fccLoading, fccCount, selectedGroups = [], onToggleGroup, onAnalyzeGroups, onAnalyzeDeals,
   panelSize = 'collapsed', onCyclePanel,
 }) {
   const market = selectedMarket ? MARKETS.find(m => m.id === selectedMarket) : null;
@@ -168,9 +168,16 @@ export default function DuopolyPanel({
                       </span>
                     ))}
                   </div>
-                  <button className="duo-analyze-btn duo-merger-btn" onClick={() => { onAnalyzeGroups(); onPanelTab('advisor'); }}>
-                    Analyze Merger
-                  </button>
+                  <div className="duo-merger-btns">
+                    <button className="duo-analyze-btn duo-merger-btn" onClick={() => { onAnalyzeGroups(); onPanelTab('advisor'); }}>
+                      Merger
+                    </button>
+                    {selectedGroups.length <= 3 && (
+                      <button className="duo-analyze-btn duo-merger-btn duo-deals-btn" onClick={() => { onAnalyzeDeals(); onPanelTab('advisor'); }}>
+                        Deals
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
               {selectedGroups.length === 1 && (

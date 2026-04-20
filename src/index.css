@@ -1023,8 +1023,14 @@ body {
 .duo-merger-x { cursor: pointer; opacity: 0.5; font-size: 13px; margin-left: 2px; }
 .duo-merger-x:hover { opacity: 1; }
 .duo-merger-btn { margin-top: 4px; font-size: 12px; padding: 7px; }
+.duo-merger-btns { display: flex; gap: 4px; margin-top: 4px; }
+.duo-merger-btns .duo-merger-btn { flex: 1; margin-top: 0; }
+.duo-deals-btn { background: transparent !important; color: var(--scripps-beam) !important; border: 1px solid var(--scripps-beam); }
+.duo-deals-btn:hover { background: rgba(255,184,28,0.12) !important; }
 .ai-merger-bar { border-color: rgba(255,184,28,0.3); }
 .ai-merger-pill { border-color: var(--scripps-beam) !important; }
+.ai-deals-bar { border-color: rgba(52,152,219,0.3) !important; }
+.ai-deals-pill { border-color: #3498DB !important; }
 
 /* ===== AI Advisor ===== */
 .duo-tab-bar {

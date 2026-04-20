@@ -109,6 +109,25 @@ export default function DuopolyView({
     });
   };
 
+  // Build deals analysis from selected groups (swaps/sales/acquisitions)
+  const handleAnalyzeDeals = () => {
+    const groupStations = fcc.loaded
+      ? fcc.stations
+          .filter(s => selectedGroups.includes(s.owner_group))
+          .map(s => ({
+            callsign: s.callsign, lat: s.lat, lon: s.lon,
+            city: s.city, state: s.state,
+            type: s.is_scripps ? 'scripps' : s.is_inyo ? 'inyo' : 'fcc',
+            color: GROUP_COLORS[s.owner_group] || GROUP_COLORS.Other,
+            owner: s.owner_group, network: s.network,
+            dmaRank: s.dma_rank, dmaName: s.dma_name,
+            _dealsMode: true,
+          }))
+      : [];
+    setSelectedStations(groupStations);
+    setPanelTab('advisor');
+  };
+
   // Build merger analysis from selected groups
   const handleAnalyzeGroups = () => {
     // Gather all FCC stations for selected groups
@@ -196,6 +215,7 @@ export default function DuopolyView({
         selectedGroups={selectedGroups}
         onToggleGroup={handleToggleGroup}
         onAnalyzeGroups={handleAnalyzeGroups}
+        onAnalyzeDeals={handleAnalyzeDeals}
       />
       <div className="globe-wrap">
         <div className="globe-canvas">
@@ -246,6 +266,7 @@ export default function DuopolyView({
         selectedGroups={selectedGroups}
         onToggleGroup={handleToggleGroup}
         onAnalyzeGroups={handleAnalyzeGroups}
+        onAnalyzeDeals={handleAnalyzeDeals}
         panelSize={panelSize}
         onCyclePanel={() => setPanelSize(s => s === 'collapsed' ? 'mid' : s === 'mid' ? 'expanded' : 'collapsed')}
       />

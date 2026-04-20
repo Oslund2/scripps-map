@@ -8,7 +8,7 @@ export default function DuopolyLegend({
   showAllStations, onToggleAllStations,
   ownerGroups, ownerFilter, onOwnerFilter,
   fccLoading, fccCount,
-  selectedGroups = [], onToggleGroup, onAnalyzeGroups,
+  selectedGroups = [], onToggleGroup, onAnalyzeGroups, onAnalyzeDeals,
 }) {
   const cc = counts || getCategoryCounts();
   return (
@@ -40,9 +40,16 @@ export default function DuopolyLegend({
                   </span>
                 ))}
               </div>
-              <button className="duo-analyze-btn duo-merger-btn" onClick={onAnalyzeGroups}>
-                Analyze Merger
-              </button>
+              <div className="duo-merger-btns">
+                <button className="duo-analyze-btn duo-merger-btn" onClick={onAnalyzeGroups}>
+                  Merger
+                </button>
+                {selectedGroups.length <= 3 && (
+                  <button className="duo-analyze-btn duo-merger-btn duo-deals-btn" onClick={onAnalyzeDeals}>
+                    Deals
+                  </button>
+                )}
+              </div>
             </div>
           )}
           {selectedGroups.length === 1 && (
