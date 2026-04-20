@@ -78,25 +78,22 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
         )}
       </div>
       <div className="tb-stats">
+        <div><b>1,682</b><span>all stations</span></div>
         {view === 'duopoly' ? (
           <>
-            <div><b>1,682</b><span>FCC stations</span></div>
-            <div><b>48</b><span>states</span></div>
+            <div><b>80</b><span>Scripps</span></div>
             <div><b>27</b><span>owner groups</span></div>
             <div><b>45</b><span>markets</span></div>
           </>
         ) : view === 'tv' ? (
           <>
-            <div><b>58</b><span>local TV</span></div>
-            <div><b>17</b><span>ION</span></div>
-            <div><b>23</b><span>INYO</span></div>
+            <div><b>80</b><span>Scripps</span></div>
+            <div><b>39</b><span>INYO</span></div>
             <div><b>45</b><span>markets</span></div>
           </>
         ) : (
           <>
-            <div><b>{stationCount}</b><span>all stations</span></div>
-            <div><b>58</b><span>local TV</span></div>
-            <div><b>23</b><span>INYO</span></div>
+            <div><b>80</b><span>Scripps</span></div>
             <div><b>{tourCount}</b><span>tour stops</span></div>
             <div><b>45</b><span>markets</span></div>
           </>
