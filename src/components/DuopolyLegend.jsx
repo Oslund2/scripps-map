@@ -13,13 +13,6 @@ export default function DuopolyLegend({
   const cc = counts || getCategoryCounts();
   return (
     <div className="legend duo-legend">
-      <div className="eyebrow">INYO Acquisition</div>
-      <div className="duo-deal-badge">
-        <div className="duo-deal-row"><b>$54M</b><span>deal value</span></div>
-        <div className="duo-deal-row"><b>23</b><span>stations</span></div>
-        <div className="duo-deal-row"><b>Feb 2026</b><span>announced</span></div>
-      </div>
-
       {/* All Stations Toggle */}
       <div className="duo-toggle-section">
         <button className={`duo-toggle-btn ${showAllStations ? 'on' : ''}`} onClick={onToggleAllStations}>
