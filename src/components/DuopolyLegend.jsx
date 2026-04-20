@@ -35,7 +35,7 @@ export default function DuopolyLegend({
           <div className="eyebrow" style={{ marginTop: 12 }}>
             Owner Groups
             <span className="lg-info" style={{ marginLeft: 4 }}
-              title="Click to filter map. Shift+click up to 3 groups, then Analyze Merger to run AI M&A analysis.">i</span>
+              title="Click name to filter map. Check boxes to select up to 3 groups for merger analysis.">i</span>
           </div>
 
           {/* Merger analyze bar */}
@@ -54,6 +54,9 @@ export default function DuopolyLegend({
               </button>
             </div>
           )}
+          {selectedGroups.length === 1 && (
+            <div className="duo-merger-hint">Select 1 more group to analyze a merger</div>
+          )}
 
           <ul>
             <li className={!ownerFilter && selectedGroups.length === 0 ? "on" : ""} onClick={() => { onOwnerFilter(null); }}>
@@ -63,18 +66,19 @@ export default function DuopolyLegend({
             {ownerGroups.slice(0, 15).map(([group, count]) => {
               const isSelected = selectedGroups.includes(group);
               const isFiltered = ownerFilter === group;
+              const atMax = selectedGroups.length >= 3 && !isSelected;
               return (
                 <li key={group}
                   className={`${isFiltered ? 'on' : ''} ${isSelected ? 'duo-group-selected' : ''}`}
-                  onClick={(e) => {
-                    if (e.shiftKey) {
-                      onToggleGroup(group);
-                    } else {
-                      onOwnerFilter(group === ownerFilter ? null : group);
-                    }
-                  }}
+                  onClick={() => onOwnerFilter(group === ownerFilter ? null : group)}
                 >
-                  {isSelected && <span className="duo-group-check">{'\u2713'}</span>}
+                  <span
+                    className={`duo-group-cb ${isSelected ? 'checked' : ''} ${atMax ? 'disabled' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); if (!atMax) onToggleGroup(group); }}
+                    title={atMax ? 'Max 3 groups' : isSelected ? 'Remove from merger' : 'Add to merger analysis'}
+                  >
+                    {isSelected ? '\u2713' : ''}
+                  </span>
                   <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
                   {group} <b>{count}</b>
                 </li>

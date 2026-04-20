@@ -992,7 +992,16 @@ body {
 
 /* Group multi-select & merger */
 .duo-group-selected { background: rgba(255,184,28,0.15) !important; border-left: 2px solid var(--scripps-beam); }
-.duo-group-check { font-size: 10px; color: var(--scripps-beam); margin-right: 2px; flex-shrink: 0; }
+.duo-group-cb {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.25); font-size: 9px; cursor: pointer;
+  color: transparent; transition: all 0.15s;
+}
+.duo-group-cb:hover { border-color: var(--scripps-beam); }
+.duo-group-cb.checked { background: var(--scripps-beam); border-color: var(--scripps-beam); color: #000; font-weight: 700; }
+.duo-group-cb.disabled { opacity: 0.3; cursor: not-allowed; }
+.duo-merger-hint { font-size: 10px; color: rgba(255,184,28,0.6); padding: 4px 0 2px; text-align: center; }
 .duo-merger-bar {
   background: rgba(255,184,28,0.06);
   border: 1px solid rgba(255,184,28,0.2);
