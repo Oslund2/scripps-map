@@ -106,7 +106,6 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
         )}
       </div>
       <nav className="tb-tabs">
-        <button className={view === "globe" ? "on" : ""} onClick={() => onView("globe")}>Globe</button>
         <button className={view === "tour"  ? "on" : ""} onClick={() => onView("tour")}>Scripps Tour</button>
         <button className={view === "list"  ? "on" : ""} onClick={() => onView("list")}>Scripps</button>
         <button className={view === "allstations" ? "on" : ""} onClick={() => onView("allstations")}>All Stations</button>
