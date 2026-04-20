@@ -283,6 +283,10 @@ export default function DuopolyView({
             overlapOverlay={overlapOverlay}
             onOverlapClick={handleOverlapClick}
             onZoom={(delta) => setZoom(z => Math.max(250, Math.min(3000, z + delta)))}
+            onRotate={({ dLon, dLat }) => setRotation(r => ({
+              lat: Math.max(-80, Math.min(80, r.lat + dLat)),
+              lon: r.lon + dLon,
+            }))}
           />
         </div>
         <div className="globe-overlay" />

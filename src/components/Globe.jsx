@@ -12,7 +12,7 @@ function project(lat, lon, lon0, lat0, R, cx, cy) {
   return { x, y, visible, depth: cosC };
 }
 
-export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations, overlapOverlay, onOverlapClick, onZoom }) {
+export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations, overlapOverlay, onOverlapClick, onZoom, onRotate }) {
   const cx = 500, cy = 500, R = zoom || 420;
   const lon0 = rotation.lon;
   const lat0 = rotation.lat;
@@ -41,6 +41,35 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
     }
     el.addEventListener('wheel', handleWheel, { passive: false });
     return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  // Drag to rotate
+  const onRotateRef = useRef(onRotate);
+  useEffect(() => { onRotateRef.current = onRotate; }, [onRotate]);
+  const dragRef = useRef(null);
+
+  const handlePointerDown = useCallback((e) => {
+    if (!onRotateRef.current) return;
+    // Only start drag on background (not on interactive elements)
+    if (e.target.closest('[data-interactive]')) return;
+    dragRef.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e) => {
+    if (!dragRef.current || !onRotateRef.current) return;
+    const dx = e.clientX - dragRef.current.x;
+    const dy = e.clientY - dragRef.current.y;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+      // Scale movement by zoom — less rotation when zoomed in
+      const scale = 0.15 * (600 / Math.max(zoomValRef.current, 300));
+      onRotateRef.current({ dLon: -dx * scale, dLat: dy * scale });
+      dragRef.current = { x: e.clientX, y: e.clientY };
+    }
+  }, []);
+
+  const handlePointerUp = useCallback(() => {
+    dragRef.current = null;
   }, []);
 
   // Project land polygons
@@ -127,7 +156,12 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
   }, [route, lon0, lat0, R, focusIdx]);
 
   return (
-    <svg ref={svgRef} viewBox="0 0 1000 1000" style={{ width: "100%", height: "100%", display: "block" }}>
+    <svg ref={svgRef} viewBox="0 0 1000 1000"
+         style={{ width: "100%", height: "100%", display: "block", touchAction: "none" }}
+         onPointerDown={handlePointerDown}
+         onPointerMove={handlePointerMove}
+         onPointerUp={handlePointerUp}
+         onPointerCancel={handlePointerUp}>
       <defs>
         <radialGradient id="ocean" cx="45%" cy="40%" r="65%">
           <stop offset="0%" stopColor="#16406B" />

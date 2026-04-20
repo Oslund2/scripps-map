@@ -64,7 +64,7 @@ export default function App() {
         allStations={stations}
         onStationSelect={(s) => {
           setRotation({ lat: s.lat, lon: s.lon });
-          setZoom(R_MAX);
+          setZoom(1200);
           setView("duopoly");
         }}
       />
