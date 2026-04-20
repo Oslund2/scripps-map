@@ -1420,6 +1420,28 @@ body {
   color: rgba(255,255,255,0.7);
   line-height: 1.5;
 }
+.tv-ma-stations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.tv-ma-stn {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.tv-ma-stn-scripps {
+  background: rgba(255,184,28,0.15);
+  color: var(--scripps-beam);
+}
+.tv-ma-stn-inyo {
+  background: rgba(155,89,182,0.2);
+  color: #C39BD3;
+}
 
 /* TV tab in top bar */
 .tb-tabs .tv-tab {

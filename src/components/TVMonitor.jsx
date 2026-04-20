@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Globe from './Globe';
 import { getAffilColor, affilLabel, TOUR_VIA } from '../data/stations';
-import { getTopOpportunities, CATEGORY_META } from '../data/markets';
+import { MARKETS, getTopOpportunities, CATEGORY_META } from '../data/markets';
 
 export default function TVMonitor({
   stations, tourStations, landGeo,
@@ -13,12 +13,26 @@ export default function TVMonitor({
   const topOpps = useMemo(() => getTopOpportunities(), []);
   const [oppIdx, setOppIdx] = useState(0);
 
-  // Rotate M&A spotlight every 8 seconds
+  // Map callsign → market for context-aware spotlight
+  const callsignToMarket = useMemo(() => {
+    const map = {};
+    for (const m of MARKETS) {
+      for (const c of [...m.stations.scripps, ...m.stations.inyo]) {
+        map[c] = m;
+      }
+    }
+    return map;
+  }, []);
+
+  // Current station's market (if any)
+  const currentMarket = current ? callsignToMarket[current.callsign] : null;
+
+  // Rotate fallback M&A spotlight every 8 seconds (only when no market match)
   useEffect(() => {
-    if (topOpps.length === 0) return;
+    if (currentMarket || topOpps.length === 0) return;
     const id = setInterval(() => setOppIdx(i => (i + 1) % topOpps.length), 8000);
     return () => clearInterval(id);
-  }, [topOpps.length]);
+  }, [topOpps.length, currentMarket]);
   const via = current ? TOUR_VIA[current.callsign] : null;
   const logoSrc = current?.logo ? `/assets/stations/${current.logo}` : null;
   const progress = tourStations.length ? ((focusIdx + 1) / tourStations.length) * 100 : 0;
@@ -78,27 +92,46 @@ export default function TVMonitor({
         </div>
       </div>
 
-      {/* M&A Spotlight ticker */}
-      {topOpps.length > 0 && (() => {
-        const opp = topOpps[oppIdx];
-        const meta = CATEGORY_META[opp.category];
+      {/* M&A Spotlight — context-aware: shows current station's market when available */}
+      {(() => {
+        const mkt = currentMarket || (topOpps.length > 0 ? topOpps[oppIdx] : null);
+        if (!mkt) return null;
+        const meta = CATEGORY_META[mkt.category];
+        const isContextual = !!currentMarket;
+        const totalStns = mkt.stations.scripps.length + mkt.stations.inyo.length;
+        // Build reason for contextual markets
+        let reason = mkt.reason;
+        if (isContextual && !reason) {
+          if (mkt.category === 'existing') reason = `Existing duopoly — ${mkt.voices} voices, $${mkt.estRevenueM}M market`;
+          else if (mkt.category === 'expanded') reason = `INYO expands duopoly to ${totalStns} stations`;
+          else if (mkt.category === 'new_duopoly') reason = `INYO creates new duopoly — ${mkt.voices} voices, ~$${mkt.estRevenueM}M revenue`;
+          else if (mkt.category === 'opportunity') reason = `Single-station market — ${mkt.voices} voices, ripe for duopoly`;
+          else if (mkt.category === 'new_market') reason = `INYO beachhead — future duopoly base`;
+          if (mkt.politicalSwing) reason += ' (swing market)';
+        }
         return (
-          <div className="tv-ma-spotlight" key={opp.id + '-' + oppIdx}>
+          <div className="tv-ma-spotlight" key={mkt.id + '-' + (isContextual ? 'ctx' : oppIdx)}>
             <div className="tv-ma-header">
               <span className="tv-ma-beacon" />
-              <span className="tv-ma-label">M&A SPOTLIGHT</span>
-              <span className="tv-ma-idx">{oppIdx + 1}/{topOpps.length}</span>
+              <span className="tv-ma-label">{isContextual ? 'THIS MARKET' : 'M&A SPOTLIGHT'}</span>
+              {!isContextual && <span className="tv-ma-idx">{oppIdx + 1}/{topOpps.length}</span>}
             </div>
-            <div className="tv-ma-market">{opp.name}</div>
+            <div className="tv-ma-market">{mkt.name}</div>
             <div className="tv-ma-stats">
-              <span>DMA #{opp.dmaRank}</span>
+              <span>DMA #{mkt.dmaRank}</span>
               <span>{'\u00B7'}</span>
-              <span>{opp.tvHouseholds ? (opp.tvHouseholds / 1000).toFixed(0) + 'K HH' : ''}</span>
+              <span>{mkt.tvHouseholds ? (mkt.tvHouseholds / 1000).toFixed(0) + 'K HH' : ''}</span>
               <span>{'\u00B7'}</span>
-              <span>${opp.estRevenueM}M/yr</span>
+              <span>${mkt.estRevenueM}M/yr</span>
             </div>
             <div className="tv-ma-badge" style={{ background: meta.color }}>{meta.label}</div>
-            <div className="tv-ma-reason">{opp.reason}</div>
+            <div className="tv-ma-reason">{reason}</div>
+            {isContextual && (
+              <div className="tv-ma-stations">
+                {mkt.stations.scripps.map(c => <span key={c} className="tv-ma-stn tv-ma-stn-scripps">{c}</span>)}
+                {mkt.stations.inyo.map(c => <span key={c} className="tv-ma-stn tv-ma-stn-inyo">{c}</span>)}
+              </div>
+            )}
           </div>
         );
       })()}
