@@ -92,31 +92,10 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
         )}
       </div>
       <div className="tb-stats">
-        <div><b>1,761</b><span>FCC stations</span></div>
-        {view === 'allstations' ? (
-          <>
-            <div><b>33</b><span>owner groups</span></div>
-            <div><b>210</b><span>DMAs</span></div>
-          </>
-        ) : view === 'duopoly' ? (
-          <>
-            <div><b>80</b><span>Scripps</span></div>
-            <div><b>33</b><span>owner groups</span></div>
-            <div><b>45</b><span>markets</span></div>
-          </>
-        ) : view === 'tv' ? (
-          <>
-            <div><b>80</b><span>Scripps</span></div>
-            <div><b>39</b><span>INYO</span></div>
-            <div><b>45</b><span>markets</span></div>
-          </>
-        ) : (
-          <>
-            <div><b>80</b><span>Scripps</span></div>
-            <div><b>{tourCount}</b><span>tour stops</span></div>
-            <div><b>45</b><span>markets</span></div>
-          </>
-        )}
+        <div><b>1,761</b><span>FCC full power</span></div>
+        <div><b>98</b><span>Scripps+ION+INYO</span></div>
+        <div><b>33</b><span>owner groups</span></div>
+        <div><b>210</b><span>markets</span></div>
       </div>
       <nav className="tb-tabs">
         <button className={view === "tour"  ? "on" : ""} onClick={() => onView("tour")}>Scripps Tour</button>
