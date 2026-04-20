@@ -13,7 +13,7 @@ export default function DuopolyView({
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [showAllStations, setShowAllStations] = useState(false);
   const [ownerFilter, setOwnerFilter] = useState(null);
-  const [panelTab, setPanelTab] = useState('markets');
+  const [panelTab, setPanelTab] = useState('advisor');
   const [selectedStations, setSelectedStations] = useState([]);
 
   const fcc = useFccStations();
@@ -90,6 +90,38 @@ export default function DuopolyView({
 
   const clearSelection = () => setSelectedStations([]);
 
+  // "Select for analysis" from a market detail card
+  const handleAnalyzeMarket = (market) => {
+    const callsigns = [...market.stations.scripps, ...market.stations.inyo];
+    // Build station objects from FCC data if available, else from allStations
+    const stationObjs = callsigns.map(call => {
+      if (fcc.loaded) {
+        const fccS = fcc.stations.find(s => s.callsign === call);
+        if (fccS) return {
+          callsign: fccS.callsign, lat: fccS.lat, lon: fccS.lon,
+          city: fccS.city, state: fccS.state,
+          type: fccS.is_scripps ? 'scripps' : fccS.is_inyo ? 'inyo' : 'fcc',
+          color: GROUP_COLORS[fccS.owner_group] || GROUP_COLORS.Other,
+          owner: fccS.owner_group, network: fccS.network,
+          dmaRank: fccS.dma_rank, dmaName: fccS.dma_name,
+        };
+      }
+      const localS = allStations.find(s => s.callsign === call);
+      if (localS) return {
+        callsign: localS.callsign, lat: localS.lat, lon: localS.lon,
+        city: localS.city, state: localS.state,
+        type: localS.type, color: GROUP_COLORS.Scripps,
+        owner: localS.type === 'inyo' ? 'INYO' : 'Scripps',
+        network: localS.affiliation || localS.type,
+        dmaRank: market.dmaRank, dmaName: market.name,
+      };
+      return null;
+    }).filter(Boolean).slice(0, 4);
+
+    setSelectedStations(stationObjs);
+    setPanelTab('advisor');
+  };
+
   return (
     <div className="stage duopoly-stage">
       <DuopolyLegend
@@ -139,6 +171,7 @@ export default function DuopolyView({
         onPanelTab={setPanelTab}
         selectedStations={selectedStations}
         onClearSelection={clearSelection}
+        onAnalyzeMarket={handleAnalyzeMarket}
       />
     </div>
   );

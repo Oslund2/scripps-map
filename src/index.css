@@ -628,6 +628,20 @@ body {
   background: #FFC947;
 }
 
+/* ===== All Stations View ===== */
+.allstations-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  overflow: hidden;
+}
+.allstations-legend {
+  padding: 24px 20px;
+  background: linear-gradient(180deg, rgba(11,37,69,0.85), rgba(5,20,40,0.85));
+  border-right: 1px solid var(--line-on-dark);
+  overflow-y: auto;
+}
+
 /* ===== Duopoly / M&A View ===== */
 .duopoly-stage {
   position: relative;
@@ -881,6 +895,21 @@ body {
   border-radius: 4px;
   margin-top: 4px;
 }
+.duo-analyze-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 12px;
+  background: var(--scripps-beam);
+  color: #0B2545;
+  border: 0;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.duo-analyze-btn:hover { background: #FFC947; }
 
 /* ===== AI Advisor ===== */
 .duo-tab-bar {

@@ -7,6 +7,8 @@ import Legend from './components/Legend';
 import StationList from './components/StationList';
 import TVMonitor from './components/TVMonitor';
 import DuopolyView from './components/DuopolyView';
+import useFccStations from './hooks/useFccStations';
+import { GROUP_COLORS } from './data/ownerGroups';
 
 // ============ CAMERA SYSTEM ============
 // Think in three shot types, like a film director:
@@ -98,6 +100,8 @@ export default function App() {
 
   const [view, setView] = useState("tour");
   const [filter, setFilter] = useState(null);
+  const [ownerFilter, setOwnerFilter] = useState(null);
+  const fcc = useFccStations();
   const [focusIdx, setFocusIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [rotation, setRotation] = useState({ lat: 38, lon: -96 }); // US center
@@ -113,6 +117,32 @@ export default function App() {
     for (const s of stations) c[s.type] = (c[s.type] || 0) + 1;
     return c;
   }, [stations]);
+
+  // All Stations view: load FCC data when entering
+  useEffect(() => {
+    if (view === 'allstations' && !fcc.loaded) fcc.load();
+  }, [view, fcc]);
+
+  const fccStationDots = useMemo(() => {
+    if (!fcc.loaded) return [];
+    let filtered = fcc.stations;
+    if (ownerFilter) filtered = filtered.filter(s => s.owner_group === ownerFilter);
+    return filtered.map(s => ({
+      callsign: s.callsign, lat: s.lat, lon: s.lon,
+      city: s.city, state: s.state,
+      type: s.is_scripps ? 'scripps' : s.is_inyo ? 'inyo' : 'fcc',
+      color: GROUP_COLORS[s.owner_group] || GROUP_COLORS.Other,
+      owner: s.owner_group, network: s.network, dmaRank: s.dma_rank,
+      dmaName: s.dma_name,
+    }));
+  }, [fcc.stations, fcc.loaded, ownerFilter]);
+
+  const ownerGroups = useMemo(() => {
+    if (!fcc.loaded) return [];
+    const groups = {};
+    for (const s of fcc.stations) groups[s.owner_group] = (groups[s.owner_group] || 0) + 1;
+    return Object.entries(groups).sort((a, b) => b[1] - a[1]);
+  }, [fcc.stations, fcc.loaded]);
 
   const current = tourStations[focusIdx];
 
@@ -325,6 +355,89 @@ export default function App() {
           setRotation={setRotation}
           setZoom={setZoom}
         />
+      </div>
+    );
+  }
+
+  if (view === "allstations") {
+    return (
+      <div className="app">
+        <TopBar
+          stationCount={stations.length}
+          tourCount={tourStations.length}
+          view={view}
+          onView={setView}
+          allStations={stations}
+          onStationSelect={onSearchSelect}
+        />
+        <div className="stage allstations-stage">
+          <div className="legend allstations-legend">
+            <div className="eyebrow">All US Stations</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: 12 }}>
+              {fcc.loading ? 'Loading...' : `${fcc.stations.length} full-power stations`}
+            </div>
+            {fcc.loaded && ownerGroups.length > 0 && (
+              <>
+                <div className="eyebrow" style={{ marginTop: 8 }}>Owner Groups</div>
+                <ul>
+                  <li className={!ownerFilter ? "on" : ""} onClick={() => setOwnerFilter(null)}>
+                    <span className="lg-sw" style={{ background: "linear-gradient(135deg,#E74C3C,#3498DB,#2ECC71)" }} />
+                    All groups <b>{fcc.stations.length}</b>
+                  </li>
+                  {ownerGroups.slice(0, 20).map(([group, count]) => (
+                    <li key={group} className={ownerFilter === group ? "on" : ""} onClick={() => setOwnerFilter(group)}>
+                      <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
+                      {group} <b>{count}</b>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+          <div className="globe-wrap">
+            <div className="globe-canvas">
+              <Globe
+                stations={[]}
+                landGeo={landGeo}
+                route={[]}
+                focusIdx={-1}
+                rotation={rotation}
+                zoom={zoom}
+                showLogos={false}
+                fccStations={fccStationDots}
+              />
+            </div>
+            <div className="globe-overlay" />
+            <div className="globe-compass">
+              <div className="eyebrow">Camera</div>
+              <div>LAT {rotation.lat.toFixed(2)}{'\u00B0'}</div>
+              <div>LON {rotation.lon.toFixed(2)}{'\u00B0'}</div>
+              <div>ALT {((R_MAX + 20 - zoom) / 4).toFixed(0)}k ft</div>
+            </div>
+            <div className="globe-zoom">
+              <button className="rotate-btn" onClick={() => setZoom(z => Math.min(R_MAX, z + ZOOM_STEP))}>
+                {'+'}
+              </button>
+              <button className="rotate-btn" onClick={() => setZoom(z => Math.max(R_MIN, z - ZOOM_STEP))}>
+                {'\u2212'}
+              </button>
+            </div>
+            <div className="globe-rotate">
+              <button className="rotate-btn" onClick={() => setRotation(r => ({...r, lon: r.lon - 20}))}>
+                {'\u25C0'}
+              </button>
+              <button className="rotate-btn" onClick={() => setRotation(r => ({...r, lat: Math.min(80, r.lat + 10)}))}>
+                {'\u25B2'}
+              </button>
+              <button className="rotate-btn" onClick={() => setRotation(r => ({...r, lat: Math.max(-80, r.lat - 10)}))}>
+                {'\u25BC'}
+              </button>
+              <button className="rotate-btn" onClick={() => setRotation(r => ({...r, lon: r.lon + 20}))}>
+                {'\u25B6'}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

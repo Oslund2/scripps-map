@@ -12,7 +12,7 @@ function FccBadge({ pass, label }) {
   );
 }
 
-function MarketDetail({ market, allStations, onBack }) {
+function MarketDetail({ market, allStations, onBack, onAnalyzeMarket }) {
   const meta = CATEGORY_META[market.category];
   const stationObjs = getMarketStationObjects(market, allStations);
   const scrippsSet = new Set(market.stations.scripps);
@@ -76,6 +76,10 @@ function MarketDetail({ market, allStations, onBack }) {
           Pre-existing duopoly — INYO adds station(s)
         </div>
       )}
+
+      <button className="duo-analyze-btn" onClick={() => onAnalyzeMarket(market)}>
+        Analyze {market.name} with AI Advisor
+      </button>
     </div>
   );
 }
@@ -98,7 +102,7 @@ function MarketRow({ market, onClick }) {
 
 export default function DuopolyPanel({
   selectedMarket, onSelectMarket, allStations, categoryFilter,
-  panelTab, onPanelTab, selectedStations, onClearSelection
+  panelTab, onPanelTab, selectedStations, onClearSelection, onAnalyzeMarket
 }) {
   const market = selectedMarket ? MARKETS.find(m => m.id === selectedMarket) : null;
 
@@ -124,7 +128,7 @@ export default function DuopolyPanel({
     return (
       <aside className="right-panel duo-panel">
         {tabBar}
-        <MarketDetail market={market} allStations={allStations} onBack={() => onSelectMarket(null)} />
+        <MarketDetail market={market} allStations={allStations} onBack={() => onSelectMarket(null)} onAnalyzeMarket={onAnalyzeMarket} />
       </aside>
     );
   }
