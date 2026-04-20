@@ -13,14 +13,12 @@ export default function DuopolyLegend({
   const cc = counts || getCategoryCounts();
   return (
     <div className="legend duo-legend">
-      {/* All Stations Toggle */}
+      {/* Stations Toggle */}
       <div className="duo-toggle-section">
-        <button className={`duo-toggle-btn ${showAllStations ? 'on' : ''}`} onClick={onToggleAllStations}>
-          {fccLoading ? 'Loading...' : showAllStations ? `All US Stations (${fccCount})` : 'Show All US Stations'}
+        <button className={`duo-toggle-btn ${!showAllStations ? 'on' : ''}`} onClick={onToggleAllStations}>
+          {fccLoading ? 'Loading...' : showAllStations ? 'Scripps Only' : `Scripps Only (${fccCount} hidden)`}
         </button>
-        {showAllStations && (
-          <span className="lg-info duo-fp-info" title="Full-power (DT) stations only. Low-power (LP/Class A), translators, and digital subchannels are not included. Counts may differ from group totals that include these.">i</span>
-        )}
+        <span className="lg-info duo-fp-info" title="Full-power (DT) stations only. Low-power (LP/Class A), translators, and digital subchannels are not included.">i</span>
       </div>
 
       {showAllStations && ownerGroups && ownerGroups.length > 0 ? (

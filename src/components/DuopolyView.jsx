@@ -11,7 +11,7 @@ export default function DuopolyView({
 }) {
   const [selectedMarket, setSelectedMarket] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState(null);
-  const [showAllStations, setShowAllStations] = useState(false);
+  const [showAllStations, setShowAllStations] = useState(true);
   const [ownerFilter, setOwnerFilter] = useState(null);
   const [panelTab, setPanelTab] = useState('advisor');
   const [selectedStations, setSelectedStations] = useState([]);
@@ -24,8 +24,8 @@ export default function DuopolyView({
   const counts = useMemo(() => getCategoryCounts(), []);
 
   useEffect(() => {
-    if (showAllStations && !fcc.loaded) fcc.load();
-  }, [showAllStations, fcc]);
+    if (!fcc.loaded && !fcc.loading) fcc.load();
+  }, [fcc]);
 
   // Build market overlay
   const marketOverlay = useMemo(() => {

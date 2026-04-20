@@ -153,7 +153,7 @@ export default function DuopolyPanel({
             onClick={onToggleAllStations}
             style={{ marginBottom: 10 }}
           >
-            {fccLoading ? 'Loading...' : showAllStations ? `All FCC Stations (${fccCount})` : 'Show All FCC Stations'}
+            {fccLoading ? 'Loading...' : showAllStations ? 'Scripps Only' : `Scripps Only (${fccCount} hidden)`}
           </button>
 
           {showAllStations && ownerGroups.length > 0 && (
