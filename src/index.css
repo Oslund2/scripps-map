@@ -1721,6 +1721,10 @@ body {
   .tv-controls button { width: 40px; height: 40px; font-size: 16px; }
   .tv-controls .tv-play { width: 50px; }
 
+  /* --- Globe: shift up so dots aren't hidden behind bottom panel --- */
+  .globe-canvas { align-items: flex-start; padding-top: 4vh; }
+  .globe-canvas > svg { max-height: 52vh; }
+
   /* --- Duo panel expand --- */
   .duo-panel-head { display: flex; }
   .duo-expand-btn { display: flex; align-items: center; justify-content: center; }
