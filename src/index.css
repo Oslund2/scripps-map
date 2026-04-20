@@ -716,6 +716,8 @@ body {
   border-color: #9B59B6;
   color: #C39BD3;
 }
+.duo-toggle-section { position: relative; }
+.duo-fp-info { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); }
 .duo-fcc-note {
   font-family: var(--font-mono);
   font-size: 11px;
