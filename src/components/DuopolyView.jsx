@@ -17,7 +17,8 @@ export default function DuopolyView({
   const [selectedStations, setSelectedStations] = useState([]);
   const [selectedMarkets, setSelectedMarkets] = useState([]);
   const [selectedGroups, setSelectedGroups] = useState([]);
-  const [panelExpanded, setPanelExpanded] = useState(false);
+  // Mobile panel size: 'collapsed' (tab bar only), 'mid' (50vh), 'expanded' (92vh)
+  const [panelSize, setPanelSize] = useState('collapsed');
 
   const fcc = useFccStations();
   const counts = useMemo(() => getCategoryCounts(), []);
@@ -245,8 +246,8 @@ export default function DuopolyView({
         selectedGroups={selectedGroups}
         onToggleGroup={handleToggleGroup}
         onAnalyzeGroups={handleAnalyzeGroups}
-        expanded={panelExpanded}
-        onToggleExpand={() => setPanelExpanded(v => !v)}
+        panelSize={panelSize}
+        onCyclePanel={() => setPanelSize(s => s === 'collapsed' ? 'mid' : s === 'mid' ? 'expanded' : 'collapsed')}
       />
     </div>
   );

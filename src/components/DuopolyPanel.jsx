@@ -115,27 +115,37 @@ export default function DuopolyPanel({
   // Mobile group selection props
   showAllStations, onToggleAllStations, ownerGroups = [], ownerFilter, onOwnerFilter,
   fccLoading, fccCount, selectedGroups = [], onToggleGroup, onAnalyzeGroups,
-  expanded, onToggleExpand,
+  panelSize = 'collapsed', onCyclePanel,
 }) {
   const market = selectedMarket ? MARKETS.find(m => m.id === selectedMarket) : null;
   const selectedMarketIds = new Set(selectedMarkets.map(m => m.id));
 
+  // Tapping a tab also opens the panel if collapsed
+  const switchTab = (tab) => {
+    onPanelTab(tab);
+    if (panelSize === 'collapsed') onCyclePanel(); // collapsed → mid
+  };
+
   const tabBar = (
     <div className="duo-tab-bar">
-      <button className={panelTab === 'markets' ? 'on' : ''} onClick={() => onPanelTab('markets')}>Markets</button>
-      <button className={panelTab === 'groups' ? 'on' : ''} onClick={() => onPanelTab('groups')}>
+      <button className={panelTab === 'markets' ? 'on' : ''} onClick={() => switchTab('markets')}>Markets</button>
+      <button className={panelTab === 'groups' ? 'on' : ''} onClick={() => switchTab('groups')}>
         Groups{selectedGroups.length > 0 ? ` (${selectedGroups.length})` : ''}
       </button>
-      <button className={panelTab === 'advisor' ? 'on' : ''} onClick={() => onPanelTab('advisor')}>
+      <button className={panelTab === 'advisor' ? 'on' : ''} onClick={() => switchTab('advisor')}>
         AI{selectedStations && selectedStations.length > 0 ? ` (${selectedStations.length})` : ''}
       </button>
     </div>
   );
 
+  const sizeClass = panelSize === 'expanded' ? 'duo-panel-expanded' : panelSize === 'mid' ? 'duo-panel-mid' : '';
+  const sizeIcon = panelSize === 'collapsed' ? '\u2191' : panelSize === 'mid' ? '\u2191' : '\u2193';
+  const sizeTitle = panelSize === 'collapsed' ? 'Open panel' : panelSize === 'mid' ? 'Expand' : 'Collapse';
+
   // Groups tab — mobile-accessible owner group selection
   if (panelTab === 'groups') {
     return (
-      <aside className={`right-panel duo-panel ${expanded ? 'duo-panel-expanded' : ''}`}>
+      <aside className={`right-panel duo-panel ${sizeClass}`}>
         {tabBar}
         <div className="duo-groups-mobile">
           <button
@@ -198,11 +208,11 @@ export default function DuopolyPanel({
 
   if (panelTab === 'advisor') {
     return (
-      <aside className={`right-panel duo-panel ${expanded ? 'duo-panel-expanded' : ''}`}>
+      <aside className={`right-panel duo-panel ${sizeClass}`}>
         <div className="duo-panel-head">
           {tabBar}
-          <button className="duo-expand-btn" onClick={onToggleExpand} title={expanded ? 'Collapse' : 'Expand'}>
-            {expanded ? '\u2193' : '\u2191'}
+          <button className="duo-expand-btn" onClick={onCyclePanel} title={sizeTitle}>
+            {sizeIcon}
           </button>
         </div>
         <SwapAdvisor selectedStations={selectedStations} onClearSelection={onClearSelection} />
@@ -212,7 +222,7 @@ export default function DuopolyPanel({
 
   if (market) {
     return (
-      <aside className="right-panel duo-panel">
+      <aside className={`right-panel duo-panel ${sizeClass}`}
         {tabBar}
         <MarketDetail market={market} allStations={allStations} onBack={() => onSelectMarket(null)} onAnalyzeMarket={onAnalyzeMarket} />
       </aside>
@@ -231,7 +241,7 @@ export default function DuopolyPanel({
   }
 
   return (
-    <aside className="right-panel duo-panel">
+    <aside className={`right-panel duo-panel ${sizeClass}`}
       {tabBar}
       <div className="duo-overview-head">
         <div className="eyebrow">M&A Analysis</div>

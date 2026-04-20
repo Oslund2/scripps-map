@@ -1651,12 +1651,16 @@ body {
   .duo-panel {
     position: fixed;
     bottom: 0; left: 0; right: 0;
-    max-height: 50vh;
+    max-height: 15vh;
     border-radius: 12px 12px 0 0;
     border-top: 2px solid var(--scripps-beam);
     z-index: 50;
-    padding: 14px;
+    padding: 10px 14px;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
   }
+  .duo-panel-mid { max-height: 50vh; overflow-y: auto; }
+  .duo-panel-expanded { max-height: 92vh !important; overflow-y: auto; top: 8vh; }
   .duo-tab-bar { margin-bottom: 10px; }
   .duo-market-row { font-size: 11px; gap: 6px; padding: 6px 8px; }
   .duo-row-check { width: 22px; height: 22px; font-size: 13px; }
@@ -1722,18 +1726,12 @@ body {
   .tv-controls .tv-play { width: 50px; }
 
   /* --- Globe: shift up so dots aren't hidden behind bottom panel --- */
-  .globe-canvas { align-items: flex-start; padding-top: 4vh; }
-  .globe-canvas > svg { max-height: 52vh; }
+  .globe-canvas { align-items: flex-start; padding-top: 2vh; }
+  .globe-canvas > svg { max-height: 78vh; }
 
   /* --- Duo panel expand --- */
   .duo-panel-head { display: flex; }
   .duo-expand-btn { display: flex; align-items: center; justify-content: center; }
-  .duo-panel-expanded {
-    max-height: 92vh !important;
-    top: 8vh;
-    bottom: 0;
-    border-radius: 12px 12px 0 0;
-  }
   .duo-panel-head {
     display: flex;
     align-items: center;
