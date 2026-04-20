@@ -16,6 +16,7 @@ export default function DuopolyView({
   const [panelTab, setPanelTab] = useState('advisor');
   const [selectedStations, setSelectedStations] = useState([]);
   const [selectedMarkets, setSelectedMarkets] = useState([]);
+  const [selectedGroups, setSelectedGroups] = useState([]);
 
   const fcc = useFccStations();
   const counts = useMemo(() => getCategoryCounts(), []);
@@ -89,7 +90,36 @@ export default function DuopolyView({
     }
   };
 
-  const clearSelection = () => { setSelectedStations([]); setSelectedMarkets([]); };
+  const clearSelection = () => { setSelectedStations([]); setSelectedMarkets([]); setSelectedGroups([]); };
+
+  // Toggle owner group selection (shift-click, max 3)
+  const handleToggleGroup = (group) => {
+    setSelectedGroups(prev => {
+      if (prev.includes(group)) return prev.filter(g => g !== group);
+      if (prev.length >= 3) return prev;
+      return [...prev, group];
+    });
+  };
+
+  // Build merger analysis from selected groups
+  const handleAnalyzeGroups = () => {
+    // Gather all FCC stations for selected groups
+    const groupStations = fcc.loaded
+      ? fcc.stations
+          .filter(s => selectedGroups.includes(s.owner_group))
+          .map(s => ({
+            callsign: s.callsign, lat: s.lat, lon: s.lon,
+            city: s.city, state: s.state,
+            type: s.is_scripps ? 'scripps' : s.is_inyo ? 'inyo' : 'fcc',
+            color: GROUP_COLORS[s.owner_group] || GROUP_COLORS.Other,
+            owner: s.owner_group, network: s.network,
+            dmaRank: s.dma_rank, dmaName: s.dma_name,
+            _mergerGroup: true,
+          }))
+      : [];
+    setSelectedStations(groupStations);
+    setPanelTab('advisor');
+  };
 
   // Toggle market selection (checkbox in market list)
   const handleToggleMarket = (market) => {
@@ -149,12 +179,15 @@ export default function DuopolyView({
         onFilter={setCategoryFilter}
         counts={counts}
         showAllStations={showAllStations}
-        onToggleAllStations={() => { setShowAllStations(v => !v); setOwnerFilter(null); }}
+        onToggleAllStations={() => { setShowAllStations(v => !v); setOwnerFilter(null); setSelectedGroups([]); }}
         ownerGroups={ownerGroups}
         ownerFilter={ownerFilter}
         onOwnerFilter={setOwnerFilter}
         fccLoading={fcc.loading}
         fccCount={fcc.stations.length}
+        selectedGroups={selectedGroups}
+        onToggleGroup={handleToggleGroup}
+        onAnalyzeGroups={handleAnalyzeGroups}
       />
       <div className="globe-wrap">
         <div className="globe-canvas">

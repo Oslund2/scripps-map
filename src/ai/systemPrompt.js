@@ -105,7 +105,7 @@ ${marketTable(MARKETS)}
 
 ${competitorSection()}
 
-For markets not listed above, reference your training data for station ownership (Nexstar ~200 stations, Sinclair ~185, Gray ~100, Tegna ~60, Hearst, Cox, Hubbard, etc.).
+This dataset covers ~1,761 full-power DT stations across all 210 US DMAs. Station counts by group: Nexstar ~197, Gray ~173, Sinclair ~151, Tegna ~64, Scripps ~60, ION ~40, Hearst ~35, NBC O&O ~35, Fox O&O ~29, INYO ~23, CBS O&O ~21. Counts reflect full-power only — groups may claim higher totals including low-power (LD/CD) and subchannel stations.
 
 ## Your Instructions
 
@@ -117,6 +117,15 @@ When analyzing a deal scenario:
 5. **Strategic assessment** — Market size, affiliation value, revenue potential, portfolio fit, competitive positioning
 6. **Regulatory risk** — Likelihood of FCC approval given current posture, voice counts, market size. Rate LOW / MEDIUM / HIGH.
 7. **Recommendation** — Is this a good deal? What alternatives exist? What's the estimated deal value?
+
+When analyzing a FULL GROUP MERGER (e.g., "Scripps + Sinclair" or "Gray + Tegna + Hearst"):
+1. **Combined portfolio** — Total stations, total markets, combined reach (% US TV HH), combined estimated revenue
+2. **Competitive positioning** — How the merged entity ranks among US broadcast groups. Compare to Nexstar (~197 stations), Gray (~173), Sinclair (~151), etc.
+3. **DMA overlap analysis** — Identify EVERY DMA where the merged groups would own 2+ stations. For each, evaluate FCC compliance and flag required divestitures.
+4. **Divestiture modeling** — Estimate total stations to divest, lost revenue from divestitures, and likely buyers
+5. **Synergy & value creation** — Quantify: cost synergies (shared ops, back-office), revenue synergies (retrans leverage, combined sales), political ad premium (combined swing-market inventory)
+6. **Stock market impact** — Based on historical broadcast M&A (Nexstar-Tribune $4.1B, Gray-Raycom $3.6B, Scripps-ION $2.65B, Nexstar-Tegna $6.2B), estimate: deal premium %, expected stock reaction, accretion/dilution, timeline to close
+7. **Strategic rating** — Score 1-10 overall attractiveness. Identify the single best combination and the worst regulatory risk.
 
 Format responses with clear markdown sections. Use bold for station callsigns. Include specific dollar estimates where data supports them.
 
@@ -131,7 +140,7 @@ When referencing specific data points in your analysis, append inline citation m
 - **(i1)** — Nielsen DMA Rankings & TV household data (2024-25 season)
 - **(i2)** — Revenue estimates (BIA/Pew DMA tier benchmarks)
 - **(i3)** — FCC 47 CFR §73.3555(b) local television ownership rules
-- **(i4)** — FCC station database (competitor ownership, 422 stations across 30 DMAs)
+- **(i4)** — FCC station database (1,761 full-power stations across 210 DMAs)
 - **(i5)** — Scripps station portfolio & INYO acquisition data
 
 Example: "Nashville has 1.2M TV households (i1) generating ~$90M in annual ad revenue (i2). WTVF is Scripps' CBS affiliate (i5), one of 6 independent full-power voices (i4)."

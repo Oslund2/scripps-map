@@ -7,7 +7,8 @@ export default function DuopolyLegend({
   filter, onFilter, counts,
   showAllStations, onToggleAllStations,
   ownerGroups, ownerFilter, onOwnerFilter,
-  fccLoading, fccCount
+  fccLoading, fccCount,
+  selectedGroups = [], onToggleGroup, onAnalyzeGroups,
 }) {
   const cc = counts || getCategoryCounts();
   return (
@@ -31,18 +32,54 @@ export default function DuopolyLegend({
 
       {showAllStations && ownerGroups && ownerGroups.length > 0 ? (
         <>
-          <div className="eyebrow" style={{ marginTop: 12 }}>Owner Groups</div>
+          <div className="eyebrow" style={{ marginTop: 12 }}>
+            Owner Groups
+            <span className="lg-info" style={{ marginLeft: 4 }}
+              title="Click to filter map. Shift+click up to 3 groups, then Analyze Merger to run AI M&A analysis.">i</span>
+          </div>
+
+          {/* Merger analyze bar */}
+          {selectedGroups.length >= 2 && (
+            <div className="duo-merger-bar">
+              <div className="duo-merger-pills">
+                {selectedGroups.map(g => (
+                  <span key={g} className="duo-merger-pill" style={{ borderColor: GROUP_COLORS[g] || GROUP_COLORS.Other }}>
+                    {g}
+                    <span className="duo-merger-x" onClick={(e) => { e.stopPropagation(); onToggleGroup(g); }}>{'\u00D7'}</span>
+                  </span>
+                ))}
+              </div>
+              <button className="duo-analyze-btn duo-merger-btn" onClick={onAnalyzeGroups}>
+                Analyze Merger
+              </button>
+            </div>
+          )}
+
           <ul>
-            <li className={!ownerFilter ? "on" : ""} onClick={() => onOwnerFilter(null)}>
+            <li className={!ownerFilter && selectedGroups.length === 0 ? "on" : ""} onClick={() => { onOwnerFilter(null); }}>
               <span className="lg-sw" style={{ background: "linear-gradient(135deg,#E74C3C,#3498DB,#2ECC71)" }} />
               All groups <b>{fccCount}</b>
             </li>
-            {ownerGroups.slice(0, 15).map(([group, count]) => (
-              <li key={group} className={ownerFilter === group ? "on" : ""} onClick={() => onOwnerFilter(group)}>
-                <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
-                {group} <b>{count}</b>
-              </li>
-            ))}
+            {ownerGroups.slice(0, 15).map(([group, count]) => {
+              const isSelected = selectedGroups.includes(group);
+              const isFiltered = ownerFilter === group;
+              return (
+                <li key={group}
+                  className={`${isFiltered ? 'on' : ''} ${isSelected ? 'duo-group-selected' : ''}`}
+                  onClick={(e) => {
+                    if (e.shiftKey) {
+                      onToggleGroup(group);
+                    } else {
+                      onOwnerFilter(group === ownerFilter ? null : group);
+                    }
+                  }}
+                >
+                  {isSelected && <span className="duo-group-check">{'\u2713'}</span>}
+                  <span className="lg-sw" style={{ background: GROUP_COLORS[group] || GROUP_COLORS.Other }} />
+                  {group} <b>{count}</b>
+                </li>
+              );
+            })}
           </ul>
         </>
       ) : (

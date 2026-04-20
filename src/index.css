@@ -990,6 +990,29 @@ body {
 }
 .duo-analyze-btn:hover { background: #FFC947; }
 
+/* Group multi-select & merger */
+.duo-group-selected { background: rgba(255,184,28,0.15) !important; border-left: 2px solid var(--scripps-beam); }
+.duo-group-check { font-size: 10px; color: var(--scripps-beam); margin-right: 2px; flex-shrink: 0; }
+.duo-merger-bar {
+  background: rgba(255,184,28,0.06);
+  border: 1px solid rgba(255,184,28,0.2);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.duo-merger-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.duo-merger-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 4px; font-size: 11px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,184,28,0.4);
+  color: #fff;
+}
+.duo-merger-x { cursor: pointer; opacity: 0.5; font-size: 13px; margin-left: 2px; }
+.duo-merger-x:hover { opacity: 1; }
+.duo-merger-btn { margin-top: 4px; font-size: 12px; padding: 7px; }
+.ai-merger-bar { border-color: rgba(255,184,28,0.3); }
+.ai-merger-pill { border-color: var(--scripps-beam) !important; }
+
 /* ===== AI Advisor ===== */
 .duo-tab-bar {
   display: flex;

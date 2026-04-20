@@ -35,7 +35,7 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
   const viewLabel = {
     tour: 'Scripps Tour',
     list: 'Scripps',
-    allstations: 'All Stations',
+    allstations: 'FCC Stations',
     duopoly: 'M&A',
     tv: 'TV Monitor',
   };
@@ -92,17 +92,16 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
         )}
       </div>
       <div className="tb-stats">
-        <div><b>1,682</b><span>all stations</span></div>
+        <div><b>1,761</b><span>FCC stations</span></div>
         {view === 'allstations' ? (
           <>
-            <div><b>1,682</b><span>FCC stations</span></div>
-            <div><b>27</b><span>owner groups</span></div>
+            <div><b>33</b><span>owner groups</span></div>
             <div><b>210</b><span>DMAs</span></div>
           </>
         ) : view === 'duopoly' ? (
           <>
             <div><b>80</b><span>Scripps</span></div>
-            <div><b>27</b><span>owner groups</span></div>
+            <div><b>33</b><span>owner groups</span></div>
             <div><b>45</b><span>markets</span></div>
           </>
         ) : view === 'tv' ? (
@@ -122,7 +121,7 @@ export default function TopBar({ stationCount, tourCount, view, onView, allStati
       <nav className="tb-tabs">
         <button className={view === "tour"  ? "on" : ""} onClick={() => onView("tour")}>Scripps Tour</button>
         <button className={view === "list"  ? "on" : ""} onClick={() => onView("list")}>Scripps</button>
-        <button className={view === "allstations" ? "on" : ""} onClick={() => onView("allstations")}>All Stations</button>
+        <button className={view === "allstations" ? "on" : ""} onClick={() => onView("allstations")}>FCC Stations</button>
         <button className={view === "duopoly" ? "on" : ""} onClick={() => onView("duopoly")}>M&A</button>
         <button className={"tv-tab" + (view === "tv" ? " on" : "")} onClick={() => onView("tv")}>TV Monitor</button>
       </nav>
