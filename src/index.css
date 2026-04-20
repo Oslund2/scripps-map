@@ -1023,17 +1023,17 @@ body {
 .duo-panel-head-always .duo-tab-bar { flex: 1; }
 .duo-expand-btn-always {
   display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.6);
-  width: 28px; height: 28px;
+  background: rgba(255,184,28,0.08);
+  border: 1px solid rgba(255,184,28,0.25);
+  color: var(--scripps-beam);
+  width: 32px; height: 32px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.15s;
 }
-.duo-expand-btn-always:hover { border-color: var(--scripps-beam); color: var(--scripps-beam); }
+.duo-expand-btn-always:hover { background: rgba(255,184,28,0.15); border-color: var(--scripps-beam); }
 
 /* Focus mode: centered overlay on desktop */
 .duo-focus-backdrop {

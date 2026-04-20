@@ -269,6 +269,7 @@ export default function DuopolyView({
         onAnalyzeDeals={handleAnalyzeDeals}
         panelSize={panelSize}
         onCyclePanel={() => setPanelSize(s => s === 'collapsed' ? 'mid' : s === 'mid' ? 'expanded' : 'collapsed')}
+        onSetPanelSize={setPanelSize}
       />
     </div>
   );

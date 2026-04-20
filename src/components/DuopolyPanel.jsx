@@ -115,7 +115,7 @@ export default function DuopolyPanel({
   // Mobile group selection props
   showAllStations, onToggleAllStations, ownerGroups = [], ownerFilter, onOwnerFilter,
   fccLoading, fccCount, selectedGroups = [], onToggleGroup, onAnalyzeGroups, onAnalyzeDeals,
-  panelSize = 'collapsed', onCyclePanel,
+  panelSize = 'collapsed', onCyclePanel, onSetPanelSize,
 }) {
   const market = selectedMarket ? MARKETS.find(m => m.id === selectedMarket) : null;
   const selectedMarketIds = new Set(selectedMarkets.map(m => m.id));
@@ -241,13 +241,14 @@ export default function DuopolyPanel({
 
   if (panelTab === 'advisor') {
     const isFocused = panelSize === 'expanded';
+    const toggleFocus = () => onSetPanelSize(isFocused ? 'collapsed' : 'expanded');
     return (
       <>
-        {isFocused && <div className="duo-focus-backdrop" onClick={onCyclePanel} />}
+        {isFocused && <div className="duo-focus-backdrop" onClick={toggleFocus} />}
         <aside className={`right-panel duo-panel ${sizeClass} ${isFocused ? 'duo-panel-focus' : ''}`}>
           <div className="duo-panel-head duo-panel-head-always">
             {tabBar}
-            <button className="duo-expand-btn duo-expand-btn-always" onClick={onCyclePanel} title={isFocused ? 'Collapse' : 'Expand'}>
+            <button className="duo-expand-btn duo-expand-btn-always" onClick={toggleFocus} title={isFocused ? 'Collapse' : 'Expand'}>
               {isFocused ? '\u2715' : '\u2922'}
             </button>
           </div>
