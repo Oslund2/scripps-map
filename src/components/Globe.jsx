@@ -12,11 +12,23 @@ function project(lat, lon, lon0, lat0, R, cx, cy) {
   return { x, y, visible, depth: cosC };
 }
 
-export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations, overlapOverlay }) {
+export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations, overlapOverlay, onOverlapClick, onZoom }) {
   const cx = 500, cy = 500, R = zoom || 420;
   const lon0 = rotation.lon;
   const lat0 = rotation.lat;
   const [hovered, setHovered] = useState(null);
+
+  // Zoom level tiers for progressive detail
+  const TIER_REGIONAL = 600;
+  const TIER_STREET = 900;
+  const zoomTier = R < TIER_REGIONAL ? 'wide' : R < TIER_STREET ? 'regional' : 'street';
+
+  function handleWheel(e) {
+    if (!onZoom) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -40 : 40;
+    onZoom(delta);
+  }
 
   // Project land polygons
   const landPaths = useMemo(() => {
@@ -102,7 +114,8 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
   }, [route, lon0, lat0, R, focusIdx]);
 
   return (
-    <svg viewBox="0 0 1000 1000" style={{ width: "100%", height: "100%", display: "block" }}>
+    <svg viewBox="0 0 1000 1000" style={{ width: "100%", height: "100%", display: "block" }}
+         onWheel={handleWheel}>
       <defs>
         <radialGradient id="ocean" cx="45%" cy="40%" r="65%">
           <stop offset="0%" stopColor="#16406B" />
@@ -189,6 +202,13 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
                   <text x={p.x} y={p.y + 3.5} textAnchor="middle" fill="#0B2545" fontSize="7"
                         fontFamily="'JetBrains Mono', monospace" fontWeight="800" pointerEvents="none">
                     {[...selectedFccStations].indexOf(s.callsign) + 1}
+                  </text>
+                )}
+                {/* Progressive labels: show callsign at regional+, network at street */}
+                {!isSel && zoomTier !== 'wide' && (isScripps || zoomTier === 'street') && (
+                  <text x={p.x + r + 3} y={p.y + 3} fill="rgba(255,255,255,0.7)" fontSize="8"
+                        fontFamily="'JetBrains Mono', monospace" fontWeight="500" pointerEvents="none">
+                    {s.callsign}{zoomTier === 'street' && s.network ? ` ${s.network}` : ''}
                   </text>
                 )}
                 {hovered === "fcc-" + s.callsign && (() => {
@@ -346,25 +366,56 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
         </g>
       )}
 
-      {/* DMA overlap rings (pulsing) */}
+      {/* DMA overlap rings + deal badges */}
       {overlapOverlay && overlapOverlay.length > 0 && (
         <g>
           {overlapOverlay.map((o) => {
             const p = project(o.lat, o.lon, lon0, lat0, R, cx, cy);
             if (!p.visible) return null;
             const r = Math.max(12, 8 + o.count * 4) * (R / 600);
+            const isHov = hovered === 'olap-' + o.dma;
+            const showBadge = zoomTier !== 'wide';
+            const dealType = o.dealType || 'deal opportunity';
+            const badgeW = Math.max(o.dma.length * 6.5 + 20, 100);
             return (
-              <g key={o.dma} pointerEvents="none">
+              <g key={o.dma}
+                 style={showBadge ? { cursor: 'pointer' } : undefined}
+                 onClick={() => showBadge && onOverlapClick && onOverlapClick(o)}
+                 onMouseEnter={() => setHovered('olap-' + o.dma)}
+                 onMouseLeave={() => setHovered(null)}>
+                {/* Pulsing ring */}
                 <circle cx={p.x} cy={p.y} r={r} fill="none" stroke="#E74C3C" strokeWidth="2" opacity="0.6">
                   <animate attributeName="r" values={`${r};${r + 16};${r}`} dur="2s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite" />
                 </circle>
                 <circle cx={p.x} cy={p.y} r={r} fill="rgba(231,76,60,0.12)" stroke="#E74C3C" strokeWidth="1.5" strokeDasharray="4 3" />
-                <text x={p.x} y={p.y - r - 5} textAnchor="middle"
-                      fill="#E74C3C" fontSize="9" fontFamily="'JetBrains Mono', monospace"
-                      fontWeight="600" opacity="0.8">
-                  {o.groups.length} groups
-                </text>
+                {/* Group count label (wide zoom) */}
+                {!showBadge && (
+                  <text x={p.x} y={p.y - r - 5} textAnchor="middle"
+                        fill="#E74C3C" fontSize="9" fontFamily="'JetBrains Mono', monospace"
+                        fontWeight="600" opacity="0.8">
+                    {o.groups.length} groups
+                  </text>
+                )}
+                {/* Deal badge (regional+ zoom) */}
+                {showBadge && (
+                  <g pointerEvents="all">
+                    <rect x={p.x - badgeW / 2} y={p.y - r - 32}
+                          width={badgeW} height={26} rx={5}
+                          fill={isHov ? 'rgba(255,184,28,0.2)' : 'rgba(6,24,51,0.9)'}
+                          stroke={isHov ? '#FFB81C' : 'rgba(255,184,28,0.4)'} strokeWidth="1" />
+                    <text x={p.x} y={p.y - r - 22} textAnchor="middle"
+                          fill="#FFB81C" fontSize="9" fontFamily="'JetBrains Mono', monospace"
+                          fontWeight="700" pointerEvents="none">
+                      {o.dma}
+                    </text>
+                    <text x={p.x} y={p.y - r - 12} textAnchor="middle"
+                          fill="rgba(255,255,255,0.6)" fontSize="7.5" fontFamily="'Inter Tight', sans-serif"
+                          pointerEvents="none">
+                      {o.groups.join(' + ')} {'\u00B7'} {dealType}
+                    </text>
+                  </g>
+                )}
               </g>
             );
           })}

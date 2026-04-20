@@ -167,6 +167,39 @@ If deals are complementary, propose a multi-deal package.
 Cite data with (i1)-(i5) markers.`;
 }
 
+function buildMarketDealPrompt(stations) {
+  const dma = stations[0]?._marketDealDma || 'Unknown';
+  const groups = stations[0]?._marketDealGroups || [];
+  const byOwner = {};
+  for (const s of stations) {
+    (byOwner[s.owner] = byOwner[s.owner] || []).push(s);
+  }
+  const rank = stations[0]?.dmaRank || '?';
+  let detail = '';
+  for (const [owner, stns] of Object.entries(byOwner)) {
+    const nets = stns.map(s => `**${s.callsign}** (${s.network || '?'})`).join(', ');
+    detail += `- **${owner}**: ${nets}\n`;
+  }
+  return `## Market Deal Opportunity: ${dma} (DMA #${rank})
+
+${groups.join(' and ')} both have stations in this market:
+${detail}
+Analyze the best deal these groups could execute in ${dma}:
+
+1. **What's the play?** — Swap, sale, or acquisition? Which station(s) move and to whom?
+2. **Duopoly creation** — Does this deal create a new duopoly for either party? Which stations combine?
+3. **FCC compliance** — Run top-4 test and 8-voice test for the post-deal market
+4. **Deal value** — Estimate using DMA revenue benchmarks and broadcast M&A multiples (label as estimates)
+5. **Revenue impact** — Annual ad + retrans change for each party
+6. **Regulatory risk** — LOW / MEDIUM / HIGH
+7. **Strategic rationale** — Why this deal makes sense (or doesn't)
+8. **Alternative scenarios** — If the obvious deal doesn't work, what's plan B?
+
+Search for any recent news about these groups or this market that could affect the deal.
+
+Cite data with (i1)-(i5) markers.`;
+}
+
 function buildMarketPrompt(stations) {
   // Group stations by DMA/market
   const byMarket = {};
@@ -304,9 +337,38 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
 
       {/* Station selection bar */}
       {selectedStations.length > 0 && (() => {
-        // Detect merger or deals mode (from group multi-select)
+        // Detect mode from station flags
         const isMerger = selectedStations[0]?._mergerGroup;
         const isDeals = selectedStations[0]?._dealsMode;
+        const isMarketDeal = selectedStations[0]?._marketDeal;
+
+        // Market-specific deal (clicked an overlap badge on globe)
+        if (isMarketDeal) {
+          const dma = selectedStations[0]._marketDealDma;
+          const groups = selectedStations[0]._marketDealGroups;
+          const prompt = buildMarketDealPrompt(selectedStations);
+          return (
+            <div className="ai-selection-bar ai-deals-bar">
+              <div className="ai-sel-header">
+                <span className="eyebrow">Market Deal: {dma}</span>
+                <button className="ai-sel-clear" onClick={onClearSelection}>Clear</button>
+              </div>
+              <div className="ai-sel-pills">
+                {groups.map(g => (
+                  <span key={g} className="ai-sel-pill ai-deals-pill"><b>{g}</b></span>
+                ))}
+                <span className="ai-sel-pill" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+                  <b>{selectedStations.length}</b>
+                  <span className="ai-sel-meta">stations</span>
+                </span>
+              </div>
+              <button className="ai-analyze-btn" disabled={isStreaming}
+                      onClick={() => { sendMessage(prompt); userAtBottom.current = true; }}>
+                Analyze {dma} Deal
+              </button>
+            </div>
+          );
+        }
 
         if (isMerger || isDeals) {
           const byOwner = {};

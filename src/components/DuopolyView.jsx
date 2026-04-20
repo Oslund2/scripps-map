@@ -75,14 +75,38 @@ export default function DuopolyView({
     }
     return Object.entries(dmaInfo)
       .filter(([, info]) => info.groups.size >= 2)
-      .map(([dma, info]) => ({
-        dma,
-        lat: info.lat,
-        lon: info.lon,
-        count: info.count,
-        groups: [...info.groups],
-      }));
+      .map(([dma, info]) => {
+        // Classify deal type based on station mix
+        const groups = [...info.groups];
+        const hasScripps = groups.includes('Scripps') || groups.includes('INYO') || groups.includes('ION');
+        const dealType = hasScripps ? 'duopoly play' : info.count > 4 ? 'swap opportunity' : 'deal opportunity';
+        return { dma, lat: info.lat, lon: info.lon, count: info.count, groups, dealType };
+      });
   }, [selectedGroups, fcc.stations, fcc.loaded]);
+
+  // Handle click on overlap badge — build market-specific deal prompt
+  const handleOverlapClick = (overlap) => {
+    // Gather stations in that DMA from selected groups
+    const groupSet = new Set(selectedGroups);
+    const marketStns = fcc.stations
+      .filter(s => groupSet.has(s.owner_group) && s.dma_name === overlap.dma)
+      .map(s => ({
+        callsign: s.callsign, lat: s.lat, lon: s.lon,
+        city: s.city, state: s.state,
+        type: s.is_scripps ? 'scripps' : s.is_inyo ? 'inyo' : 'fcc',
+        color: GROUP_COLORS[s.owner_group] || GROUP_COLORS.Other,
+        owner: s.owner_group, network: s.network,
+        dmaRank: s.dma_rank, dmaName: s.dma_name,
+        _marketDeal: true,
+        _marketDealDma: overlap.dma,
+        _marketDealGroups: overlap.groups,
+      }));
+    setSelectedStations(marketStns);
+    setPanelTab('advisor');
+    // Zoom to the market
+    setRotation({ lat: overlap.lat, lon: overlap.lon });
+    setZoom(900);
+  };
 
   const ownerGroups = useMemo(() => {
     if (!fcc.loaded) return [];
@@ -257,6 +281,8 @@ export default function DuopolyView({
             onFccStationClick={handleFccStationClick}
             selectedFccStations={selectedFccSet}
             overlapOverlay={overlapOverlay}
+            onOverlapClick={handleOverlapClick}
+            onZoom={(delta) => setZoom(z => Math.max(250, Math.min(1200, z + delta)))}
           />
         </div>
         <div className="globe-overlay" />
