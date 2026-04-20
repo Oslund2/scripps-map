@@ -98,7 +98,7 @@ export default function App() {
     [stations, tourCalls]
   );
 
-  const [view, setView] = useState("tour");
+  const [view, setView] = useState("duopoly");
   const [filter, setFilter] = useState(null);
   const [ownerFilter, setOwnerFilter] = useState(null);
   const fcc = useFccStations();
