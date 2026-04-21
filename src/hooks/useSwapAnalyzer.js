@@ -13,6 +13,7 @@ export default function useSwapAnalyzer() {
   const [error, setError] = useState(null);
   const [persona, setPersona] = useState('');
   const [additionalInstructions, setAdditionalInstructions] = useState('');
+  const [regulatoryMode, setRegulatoryMode] = useState('current'); // 'current' | 'deregulated'
   const abortRef = useRef(null);
   const systemPromptRef = useRef(null);
 
@@ -35,10 +36,19 @@ export default function useSwapAnalyzer() {
 
   function getSystemPrompt() {
     // Rebuild every time if customizations exist (they may change between sends)
-    if (persona || additionalInstructions || !systemPromptRef.current) {
-      systemPromptRef.current = buildSystemPrompt({ persona, additionalInstructions });
+    if (persona || additionalInstructions || regulatoryMode !== 'current' || !systemPromptRef.current) {
+      systemPromptRef.current = buildSystemPrompt({ persona, additionalInstructions, regulatoryMode });
     }
     return systemPromptRef.current;
+  }
+
+  function switchRegulatoryMode(newMode) {
+    if (newMode === regulatoryMode) return;
+    setRegulatoryMode(newMode);
+    systemPromptRef.current = null; // force rebuild
+    if (messages.length > 0) {
+      clearMessages();
+    }
   }
 
   // Cleanup on unmount
@@ -217,6 +227,7 @@ export default function useSwapAnalyzer() {
     sendMessage, clearMessages,
     persona, setPersona,
     additionalInstructions, setAdditionalInstructions,
+    regulatoryMode, switchRegulatoryMode,
     getSystemPrompt,
   };
 }

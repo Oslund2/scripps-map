@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import useSwapAnalyzer from '../hooks/useSwapAnalyzer';
-import { TEMPLATES } from '../ai/templates';
+import { getTemplates } from '../ai/templates';
 
 function renderCitations(text) {
   // Escape HTML, then style citation markers and basic markdown
@@ -18,15 +18,21 @@ function renderCitations(text) {
   return html;
 }
 
-function buildSelectionPrompt(stations) {
+function buildSelectionPrompt(stations, mode) {
+  const isDeregulated = mode === 'deregulated';
   const list = stations.map((s, i) => {
     const ours = s.type === 'scripps' || s.type === 'inyo';
     return `${i + 1}. **${s.callsign}** — ${s.network || 'Unknown'} affiliate, ${s.dmaName || s.city + ', ' + s.state} (DMA #${s.dmaRank || '?'}), owned by ${s.owner}${ours ? ' [SCRIPPS]' : ''}`;
   }).join('\n');
-  return `Analyze these ${stations.length} stations I've selected on the map:\n\n${list}\n\nFor Scripps, evaluate:\n- Which of these could Scripps acquire to form/expand a duopoly?\n- FCC compliance for each potential combination (top-4 + 8-voice tests)\n- Estimated deal value using DMA revenue benchmarks\n- Multi-party swap scenarios if direct acquisition isn't feasible\n- Regulatory risk rating (LOW/MEDIUM/HIGH) for each scenario\n- Recommended best move\n\nCite all data points with (i1)-(i5) markers.`;
+  const regulatory = isDeregulated
+    ? `- Strategic feasibility for each potential combination (no FCC ownership cap constraints)\n- Any DOJ antitrust concerns`
+    : `- FCC compliance for each potential combination (top-4 + 8-voice tests)`;
+  const riskLabel = isDeregulated ? 'Antitrust risk' : 'Regulatory risk';
+  return `Analyze these ${stations.length} stations I've selected on the map:\n\n${list}\n\nFor Scripps, evaluate:\n- Which of these could Scripps acquire to form/expand a ${isDeregulated ? 'multi-station cluster' : 'duopoly'}?\n${regulatory}\n- Estimated deal value using DMA revenue benchmarks\n- Multi-party swap scenarios if direct acquisition isn't feasible\n- ${riskLabel} rating (LOW/MEDIUM/HIGH) for each scenario\n- Recommended best move\n\nCite all data points with (i1)-(i5) markers.`;
 }
 
-function buildMergerPrompt(stations) {
+function buildMergerPrompt(stations, mode) {
+  const isDeregulated = mode === 'deregulated';
   // Group all stations by owner group
   const byOwner = {};
   for (const s of stations) {
@@ -53,6 +59,25 @@ function buildMergerPrompt(stations) {
     if (dmas.length > 20) groupSections += `- ... and ${dmas.length - 20} more markets\n`;
   }
 
+  const regulatorySection = isDeregulated
+    ? `**2. Consolidation Opportunity Map**
+- Identify ALL overlapping DMAs where the merged entity would own 2+ stations
+- No FCC divestitures required — quantify revenue and margin uplift from multi-station clusters
+- Flag any DMAs where combined entity would control >40% of local TV ad revenue (DOJ antitrust exposure)`
+    : `**2. Regulatory / FCC Analysis**
+- Identify ALL overlapping DMAs where the merged entity would own 2+ stations
+- For each overlap: run FCC compliance (top-4 test + 8-voice test)
+- Which stations would need to be divested to gain approval?
+- Estimate total divestiture count and revenue impact`;
+
+  const synergiesNote = isDeregulated
+    ? `- Synergies: duplicate elimination, shared sales, retrans leverage, combined political ad inventory\n- Note: without ownership caps, synergies are larger — no stations must be divested`
+    : `- Synergies: duplicate elimination, shared sales, retrans leverage, combined political ad inventory`;
+
+  const riskLine = isDeregulated
+    ? '- Top 3 markets with the highest antitrust exposure'
+    : '- Top 3 markets with the highest regulatory risk';
+
   return `## Full Merger Analysis: ${groups.join(' + ')}
 
 Analyze a hypothetical full merger of these ${groups.length} broadcast groups:
@@ -64,15 +89,11 @@ Provide a comprehensive M&A analysis:
 - Total station count, market reach (% US TV households), and combined revenue estimate
 - How this combined entity would rank among US broadcast groups (vs Nexstar, Sinclair, Gray, etc.)
 
-**2. Regulatory / FCC Analysis**
-- Identify ALL overlapping DMAs where the merged entity would own 2+ stations
-- For each overlap: run FCC compliance (top-4 test + 8-voice test)
-- Which stations would need to be divested to gain approval?
-- Estimate total divestiture count and revenue impact
+${regulatorySection}
 
 **3. Financial Value Creation**
 - Combined estimated annual revenue (ad + retransmission)
-- Synergies: duplicate elimination, shared sales, retrans leverage, combined political ad inventory
+${synergiesNote}
 - Estimate accretive value (% revenue uplift from synergies)
 - Pro-forma valuation using broadcast M&A multiples
 
@@ -80,18 +101,19 @@ Provide a comprehensive M&A analysis:
 - Historical precedent from similar broadcast mergers (Nexstar-Tribune, Gray-Raycom, Scripps-ION)
 - Expected stock price reaction range (based on deal premium, synergy estimates, and market conditions)
 - Likely acquirer vs target dynamics — who buys whom and at what premium?
-- Timeline estimate for regulatory approval
+- Timeline estimate for ${isDeregulated ? 'closing' : 'regulatory approval'}
 
 **5. Strategic Rating**
 - Overall deal attractiveness: 1-10 score with rationale
 - Top 3 markets where the merger creates the most value
-- Top 3 markets with the highest regulatory risk
+${riskLine}
 - Recommended deal structure (full merger vs partial swap vs asset purchase)
 
 Cite all data points with (i1)-(i5) markers.`;
 }
 
-function buildDealsPrompt(stations) {
+function buildDealsPrompt(stations, mode) {
+  const isDeregulated = mode === 'deregulated';
   const byOwner = {};
   for (const s of stations) {
     (byOwner[s.owner] = byOwner[s.owner] || []).push(s);
@@ -135,19 +157,28 @@ function buildDealsPrompt(stations) {
   }
   if (overlapCount === 0) overlapSection += '- No direct DMA overlaps found\n';
 
+  const consolidationNote = isDeregulated ? ' Without ownership caps, consider multi-station cluster plays beyond simple duopolies.' : '';
+  const acquisitionGuide = isDeregulated
+    ? `**3. Acquisitions** — Group A should buy station X from Group B. Without ownership caps, ANY station is a valid target — look for markets where deeper consolidation creates the most revenue uplift and competitive moat.`
+    : `**3. Acquisitions** — Group A should buy station X from Group B. Look for: markets where the buyer has a top-4 affiliate and the target is CW/indie/ION (clean FCC path to duopoly).`;
+  const complianceLine = isDeregulated
+    ? '- Antitrust screen: would the post-deal market concentration raise DOJ/FTC concerns?'
+    : '- FCC compliance: top-4 test + 8-voice test';
+  const riskLabel = isDeregulated ? 'Antitrust risk' : 'Regulatory risk';
+
   return `## Deal Analysis: ${groups.join(' / ')}
 
-These ${groups.length} groups are NOT merging. Identify the best station-level DEALS between them — swaps, sales, and acquisitions that create value for ALL parties.
+These ${groups.length} groups are NOT merging. Identify the best station-level DEALS between them — swaps, sales, and acquisitions that create value for ALL parties.${consolidationNote}
 ${groupSections}
 ${overlapSection}
 
 **Find and rank the best deals:**
 
-**1. Swaps** — Group A trades station X to Group B for station Y. Look for: one group has a standalone in a market where another already has presence (duopoly play for the receiver). Each swap should be value-balanced or include a cash kicker.
+**1. Swaps** — Group A trades station X to Group B for station Y. Look for: one group has a standalone in a market where another already has presence (consolidation play for the receiver). Each swap should be value-balanced or include a cash kicker.
 
-**2. Sales** — Group A sells a non-core station to Group B who can use it. Look for: small standalones with no duopoly path for the seller, but strategic value for a buyer who already has market presence.
+**2. Sales** — Group A sells a non-core station to Group B who can use it. Look for: small standalones with limited consolidation path for the seller, but strategic value for a buyer who already has market presence.
 
-**3. Acquisitions** — Group A should buy station X from Group B. Look for: markets where the buyer has a top-4 affiliate and the target is CW/indie/ION (clean FCC path to duopoly).
+${acquisitionGuide}
 
 **For EACH deal provide:**
 - Stations involved (callsigns, from whom to whom)
@@ -155,9 +186,9 @@ ${overlapSection}
 - Deal type: Swap / Sale / Acquisition
 - Estimated deal value (using revenue estimates + broadcast M&A multiples)
 - Revenue impact per party (annual ad + retrans change)
-- Does it create a new duopoly? For whom?
-- FCC compliance: top-4 test + 8-voice test
-- Regulatory risk: LOW / MEDIUM / HIGH
+- Does it create a new multi-station holding? For whom?
+${complianceLine}
+- ${riskLabel}: LOW / MEDIUM / HIGH
 - Strategic rationale
 
 **Then rank ALL deals by total value created** across all parties (revenue increases + margin gains + exit price uplift). Show a scorecard table. Identify the single best deal they could execute tomorrow, and flag any deal that should NOT happen.
@@ -167,7 +198,8 @@ If deals are complementary, propose a multi-deal package.
 Cite data with (i1)-(i5) markers.`;
 }
 
-function buildMarketDealPrompt(stations) {
+function buildMarketDealPrompt(stations, mode) {
+  const isDeregulated = mode === 'deregulated';
   const dma = stations[0]?._marketDealDma || 'Unknown';
   const groups = stations[0]?._marketDealGroups || [];
   const byOwner = {};
@@ -180,6 +212,15 @@ function buildMarketDealPrompt(stations) {
     const nets = stns.map(s => `**${s.callsign}** (${s.network || '?'})`).join(', ');
     detail += `- **${owner}**: ${nets}\n`;
   }
+  const consolidationStep = isDeregulated
+    ? `2. **Consolidation play** — Without ownership caps, what is the maximum station cluster each party could build in this DMA? Which stations combine?`
+    : `2. **Duopoly creation** — Does this deal create a new duopoly for either party? Which stations combine?`;
+  const complianceStep = isDeregulated
+    ? `3. **Antitrust screen** — Would the post-deal market concentration raise DOJ concerns?`
+    : `3. **FCC compliance** — Run top-4 test and 8-voice test for the post-deal market`;
+  const riskStep = isDeregulated
+    ? `6. **Antitrust risk** — LOW / MEDIUM / HIGH`
+    : `6. **Regulatory risk** — LOW / MEDIUM / HIGH`;
   return `## Market Deal Opportunity: ${dma} (DMA #${rank})
 
 ${groups.join(' and ')} both have stations in this market:
@@ -187,11 +228,11 @@ ${detail}
 Analyze the best deal these groups could execute in ${dma}:
 
 1. **What's the play?** — Swap, sale, or acquisition? Which station(s) move and to whom?
-2. **Duopoly creation** — Does this deal create a new duopoly for either party? Which stations combine?
-3. **FCC compliance** — Run top-4 test and 8-voice test for the post-deal market
+${consolidationStep}
+${complianceStep}
 4. **Deal value** — Estimate using DMA revenue benchmarks and broadcast M&A multiples (label as estimates)
 5. **Revenue impact** — Annual ad + retrans change for each party
-6. **Regulatory risk** — LOW / MEDIUM / HIGH
+${riskStep}
 7. **Strategic rationale** — Why this deal makes sense (or doesn't)
 8. **Alternative scenarios** — If the obvious deal doesn't work, what's plan B?
 
@@ -200,7 +241,7 @@ Search for any recent news about these groups or this market that could affect t
 Cite data with (i1)-(i5) markers.`;
 }
 
-function buildMarketPrompt(stations) {
+function buildMarketPrompt(stations, mode) {
   // Group stations by DMA/market
   const byMarket = {};
   for (const s of stations) {
@@ -217,7 +258,15 @@ function buildMarketPrompt(stations) {
       list += `  - ${s.callsign} — ${s.network || 'Unknown'}, owned by ${s.owner}${ours ? ' [SCRIPPS]' : ''}\n`;
     }
   }
-  return `Analyze these ${marketEntries.length} markets I've selected for M&A opportunity:\n${list}\nFor Scripps, evaluate:\n- Cross-market swap scenarios and synergies between these markets\n- FCC compliance for each potential combination (top-4 + 8-voice tests)\n- Estimated deal value using DMA revenue benchmarks\n- Which markets are strongest for duopoly expansion?\n- Regulatory risk rating (LOW/MEDIUM/HIGH) for each scenario\n- Recommended best move and priority order\n\nCite all data points with (i1)-(i5) markers.`;
+  const isDeregulated = mode === 'deregulated';
+  const complianceLine = isDeregulated
+    ? '- Strategic feasibility (no FCC ownership cap constraints) and DOJ antitrust screen'
+    : '- FCC compliance for each potential combination (top-4 + 8-voice tests)';
+  const expansionLine = isDeregulated
+    ? '- Which markets offer the deepest consolidation opportunity?'
+    : '- Which markets are strongest for duopoly expansion?';
+  const riskLabel = isDeregulated ? 'Antitrust risk' : 'Regulatory risk';
+  return `Analyze these ${marketEntries.length} markets I've selected for M&A opportunity:\n${list}\nFor Scripps, evaluate:\n- Cross-market swap scenarios and synergies between these markets\n${complianceLine}\n- Estimated deal value using DMA revenue benchmarks\n${expansionLine}\n- ${riskLabel} rating (LOW/MEDIUM/HIGH) for each scenario\n- Recommended best move and priority order\n\nCite all data points with (i1)-(i5) markers.`;
 }
 
 export default function SwapAdvisor({ selectedStations = [], onClearSelection }) {
@@ -226,6 +275,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
     sendMessage, clearMessages,
     persona, setPersona,
     additionalInstructions, setAdditionalInstructions,
+    regulatoryMode, switchRegulatoryMode,
     getSystemPrompt,
   } = useSwapAnalyzer();
   const [input, setInput] = useState('');
@@ -271,10 +321,18 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
     }
   }
 
+  const templates = getTemplates(regulatoryMode);
+  const isDeregulated = regulatoryMode === 'deregulated';
+
   return (
     <div className="ai-advisor">
+      {/* Persistent mode indicator */}
+      <div className={`ai-mode-indicator ${isDeregulated ? 'ai-mode-deregulated' : ''}`}>
+        {isDeregulated ? '\u{1F513} NO OWNERSHIP CAP' : '\u{1F6E1}\uFE0F FCC Rules Active'}
+      </div>
+
       <div className="ai-templates">
-        {TEMPLATES.map(t => (
+        {templates.map(t => (
           <button key={t.id} className="ai-template-btn" onClick={() => handleTemplate(t)}
                   disabled={isStreaming}>
             {t.label}
@@ -298,6 +356,29 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
       {/* Settings panel */}
       {showSettings && (
         <div className="ai-settings">
+          <div className="ai-settings-field">
+            <label className="eyebrow">Regulatory Environment</label>
+            <div className="ai-mode-toggle">
+              <button
+                className={`ai-mode-toggle-btn ${!isDeregulated ? 'on' : ''}`}
+                onClick={() => switchRegulatoryMode('current')}
+              >
+                Current FCC Rules
+              </button>
+              <button
+                className={`ai-mode-toggle-btn ${isDeregulated ? 'on' : ''}`}
+                onClick={() => switchRegulatoryMode('deregulated')}
+              >
+                No Ownership Cap
+              </button>
+            </div>
+            <div className="ai-settings-hint">
+              {isDeregulated
+                ? 'Analysis assumes all FCC ownership caps have been lifted. Focus shifts to strategic value and DOJ antitrust review.'
+                : 'Analysis uses current FCC rules: top-4 prohibition, 8-voice test, 39% national cap.'}
+              {' '}Switching modes starts a new conversation.
+            </div>
+          </div>
           <div className="ai-settings-field">
             <label className="eyebrow">Analysis Persona</label>
             <input
@@ -346,7 +427,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
         if (isMarketDeal) {
           const dma = selectedStations[0]._marketDealDma;
           const groups = selectedStations[0]._marketDealGroups;
-          const prompt = buildMarketDealPrompt(selectedStations);
+          const prompt = buildMarketDealPrompt(selectedStations, regulatoryMode);
           return (
             <div className="ai-selection-bar ai-deals-bar">
               <div className="ai-sel-header">
@@ -376,7 +457,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
             (byOwner[s.owner] = byOwner[s.owner] || []).push(s);
           }
           const ownerNames = Object.keys(byOwner);
-          const prompt = isDeals ? buildDealsPrompt(selectedStations) : buildMergerPrompt(selectedStations);
+          const prompt = isDeals ? buildDealsPrompt(selectedStations, regulatoryMode) : buildMergerPrompt(selectedStations, regulatoryMode);
           const label = isDeals ? 'Deal Analysis' : 'Merger Analysis';
           const btnLabel = isDeals
             ? `Analyze Deals: ${ownerNames.join(' / ')}`
@@ -411,7 +492,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
         }
         const marketNames = Object.keys(byMarket);
         const isMultiMarket = marketNames.length > 1;
-        const prompt = isMultiMarket ? buildMarketPrompt(selectedStations) : buildSelectionPrompt(selectedStations);
+        const prompt = isMultiMarket ? buildMarketPrompt(selectedStations, regulatoryMode) : buildSelectionPrompt(selectedStations, regulatoryMode);
         return (
           <div className="ai-selection-bar">
             <div className="ai-sel-header">
