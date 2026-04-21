@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 const DIRECT_API_URL = 'https://api.anthropic.com/v1/messages';
 const PROXY_PATH = '/api/chat';
 const MODEL = 'claude-sonnet-4-20250514';
-const MAX_TOKENS = 8096;
+const MAX_TOKENS = 16384;
 
 export default function useSwapAnalyzer() {
   const [messages, setMessages] = useState([]);

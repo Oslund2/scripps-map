@@ -31,7 +31,7 @@ export default async (req) => {
       },
       body: JSON.stringify({
         model: model || 'claude-sonnet-4-20250514',
-        max_tokens: max_tokens || 8096,
+        max_tokens: max_tokens || 16384,
         stream: true,
         system,
         messages,
