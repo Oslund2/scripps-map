@@ -197,12 +197,12 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
       <circle cx={cx} cy={cy} r={R} fill="url(#ocean)" />
 
       {/* graticule */}
-      <g stroke="rgba(255,255,255,0.06)" strokeWidth="0.6" fill="none">
+      <g stroke="rgba(255,255,255,0.06)" strokeWidth={Math.max(0.4, R / 1000)} fill="none">
         {grat.map((d, i) => <path key={i} d={d} />)}
       </g>
 
       {/* land */}
-      <g fill="#1a3558" stroke="rgba(255,255,255,0.35)" strokeWidth="1">
+      <g fill="#1a3558" stroke="rgba(255,255,255,0.35)" strokeWidth={Math.max(0.8, R / 600)}>
         {landPaths.map((d, i) => <path key={i} d={d} />)}
       </g>
 
@@ -237,7 +237,9 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
               const viewR = R * 1.05;
               if (distSq > viewR * viewR) return null;
             }
-            const r = isSel ? 4.5 : (isScripps ? 3.5 : 2);
+            // Scale dots with zoom so they stay crisp (not sub-pixel blobs)
+            const zScale = Math.max(1, R / 600);
+            const r = isSel ? 4.5 * zScale : (isScripps ? 3.5 * zScale : 2 * zScale);
             // Labels: only show near viewport center to reduce clutter
             const nearCenter = (() => {
               const dx = p.x - cx, dy = p.y - cy;

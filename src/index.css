@@ -171,17 +171,17 @@ body {
   background: radial-gradient(ellipse at center, #0B2545 0%, #051428 80%);
 }
 .globe-canvas { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.globe-canvas > svg { max-width: min(92%, 900px); max-height: 92%; }
+.globe-canvas > svg { max-width: 92%; max-height: 92%; }
 
 .globe-overlay {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse at 50% 120%, rgba(255,184,28,0.08), transparent 40%),
-    radial-gradient(ellipse at 30% 0%, rgba(30,95,140,0.3), transparent 50%);
+    radial-gradient(ellipse at 50% 120%, rgba(255,184,28,0.05), transparent 40%),
+    radial-gradient(ellipse at 30% 0%, rgba(30,95,140,0.12), transparent 50%);
 }
 .globe-compass {
   position: absolute; top: 16px; right: 16px;
-  background: rgba(6,24,51,0.6); backdrop-filter: blur(12px);
+  background: rgba(6,24,51,0.75);
   border: 1px solid var(--line-on-dark); border-radius: 6px;
   padding: 10px 14px; font-family: var(--font-mono); font-size: 11px;
   color: rgba(255,255,255,0.75); letter-spacing: 0.04em;
