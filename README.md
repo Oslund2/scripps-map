@@ -58,11 +58,22 @@ Select 2-3 owner groups and click **Deals** to find the best transactions betwee
 - Deal scorecard with revenue impact, FCC status, and risk rating
 - Multi-deal package recommendations for negotiated bundles
 
+### Regulatory Mode Toggle
+The FCC ownership landscape is in flux. This tool lets you analyze deals under **two regulatory frameworks**:
+
+- **Current FCC Rules** (default) — All analysis applies the existing 47 CFR §73.3555(b) ownership rules: Top-4 prohibition, 8-voice test, national household cap, and grandfathering provisions. Every deal is evaluated for FCC compliance and regulatory risk.
+- **No Ownership Cap** — Toggle this mode on to analyze deals in a deregulated scenario where FCC ownership caps have been lifted. The AI shifts from FCC compliance checks to DOJ/FTC antitrust screening, and the strategic advice changes dramatically — full group mergers become viable without forced divestitures, every market is a consolidation opportunity, and the Risk Score template becomes an **Opportunity Score** focused on which markets unlock the most value.
+
+**How to switch:** Open the AI Advisor panel, click the gear icon, and use the **Regulatory Environment** toggle at the top of settings. A persistent mode indicator pill above the template buttons always shows which mode is active (amber highlight for No Ownership Cap). Switching modes starts a fresh conversation since the AI's instructions change fundamentally between frameworks.
+
+**Compare both at once:** Use the **Compare Scenarios** template to get a side-by-side analysis of current rules vs. deregulated for Scripps' top markets — without switching modes.
+
 ### Pre-Built Analysis Templates
 - **Swap Analyzer** — Evaluate a specific station trade scenario
 - **Market Gaps** — Score the top 10 acquisition targets across Scripps opportunity markets
-- **Risk Score** — Regulatory risk rating for every current and planned Scripps duopoly
+- **Risk Score / Opportunity Score** — Regulatory risk rating (current rules) or consolidation opportunity scoring (no cap mode) for every Scripps market
 - **Best Merger** — Rank all major groups as Scripps merger targets by shareholder value
+- **Compare Scenarios** — Side-by-side analysis under both regulatory frameworks
 
 ### Live Web Search
 The AI searches for the latest headlines about every company being analyzed — pending mergers, FCC rulings, earnings reports, stock movements, activist investors, and leadership changes. Analysis is grounded in today's reality, not stale data.
@@ -101,8 +112,16 @@ A sortable, filterable table of all 98 Scripps + ION + INYO stations with networ
 ### Explore Smaller Groups
 Scroll to the bottom of the owner groups list and click **More groups** to reveal 18 additional operators (Capitol, Morgan Murphy, Lilly, Weigel, etc.) that are often strong acquisition candidates for duopoly plays.
 
+### Analyze Without Ownership Caps
+1. Open the **AI Advisor** tab and click the **gear icon**
+2. Under **Regulatory Environment**, click **No Ownership Cap**
+3. The mode indicator turns amber: **NO OWNERSHIP CAP**
+4. All analysis now assumes FCC caps are lifted — focus shifts to strategic value and antitrust
+5. Try **Opportunity Score** to see which markets offer the deepest consolidation plays
+6. Use **Compare Scenarios** to see both frameworks side by side
+
 ### Quick Analysis with Templates
-In the AI panel, click any template button (**Swap Analyzer**, **Market Gaps**, **Risk Score**, **Best Merger**) to run a pre-built analysis instantly.
+In the AI panel, click any template button (**Swap Analyzer**, **Market Gaps**, **Risk Score / Opportunity Score**, **Best Merger**, **Compare Scenarios**) to run a pre-built analysis instantly.
 
 ### Filter and Explore
 - Click any **group name** (not the checkbox) to filter the globe to just that group's stations
