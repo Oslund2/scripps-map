@@ -282,6 +282,7 @@ export default function DuopolyView({
             selectedFccStations={selectedFccSet}
             overlapOverlay={overlapOverlay}
             onOverlapClick={handleOverlapClick}
+            ownerFilter={ownerFilter}
             onZoom={(delta) => setZoom(z => Math.max(250, Math.min(8000, z + delta)))}
             onRotate={({ dLon, dLat }) => setRotation(r => ({
               lat: Math.max(-80, Math.min(80, r.lat + dLat)),

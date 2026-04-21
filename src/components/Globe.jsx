@@ -12,7 +12,7 @@ function project(lat, lon, lon0, lat0, R, cx, cy) {
   return { x, y, visible, depth: cosC };
 }
 
-export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations, overlapOverlay, onOverlapClick, onZoom, onRotate }) {
+export default function Globe({ stations, landGeo, route, focusIdx, rotation, zoom, onStationClick, selected, showLogos, marketOverlay, onMarketClick, selectedMarket, fccStations, onFccStationClick, selectedFccStations, overlapOverlay, onOverlapClick, onZoom, onRotate, ownerFilter }) {
   const cx = 500, cy = 500, R = zoom || 420;
   const lon0 = rotation.lon;
   const lat0 = rotation.lat;
@@ -158,6 +158,8 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
   return (
     <svg ref={svgRef} viewBox="0 0 1000 1000"
          style={{ width: "100%", height: "100%", display: "block", touchAction: "none" }}
+         shapeRendering="geometricPrecision"
+         textRendering="optimizeLegibility"
          onPointerDown={handlePointerDown}
          onPointerMove={handlePointerMove}
          onPointerUp={handlePointerUp}
@@ -173,10 +175,7 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
           <stop offset="96%" stopColor="rgba(255,184,28,0.35)" />
           <stop offset="100%" stopColor="rgba(255,184,28,0)" />
         </radialGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="2.5" result="b" />
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
+        {/* glow filter removed — feGaussianBlur triggers SVG rasterization causing blurriness */}
         {showLogos && stations.map((s) => {
           if (!s.logo) return null;
           const p = project(s.lat, s.lon, lon0, lat0, R, cx, cy);
@@ -220,15 +219,30 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
         ))}
       </g>
 
-      {/* FCC all-stations layer */}
+      {/* FCC all-stations layer — progressive density + viewport culling */}
       {fccStations && fccStations.length > 0 && (
         <g>
           {fccStations.map((s) => {
-            const p = project(s.lat, s.lon, lon0, lat0, R, cx, cy);
-            if (!p.visible) return null;
             const isScripps = s.type === 'scripps' || s.type === 'inyo';
             const isSel = selectedFccStations && selectedFccStations.has(s.callsign);
-            const r = isSel ? 4.5 : (isScripps ? 3.5 : 2.2);
+            const isGroupFiltered = ownerFilter && s.owner_group === ownerFilter;
+            // Progressive density: at wide zoom, only show Scripps/INYO/selected/filtered
+            if (zoomTier === 'wide' && !isScripps && !isSel && !isGroupFiltered) return null;
+            const p = project(s.lat, s.lon, lon0, lat0, R, cx, cy);
+            if (!p.visible) return null;
+            // Viewport culling: skip stations far from visible area when zoomed in
+            if (zoomTier !== 'wide' && !isSel) {
+              const dx = p.x - cx, dy = p.y - cy;
+              const distSq = dx * dx + dy * dy;
+              const viewR = R * 1.05;
+              if (distSq > viewR * viewR) return null;
+            }
+            const r = isSel ? 4.5 : (isScripps ? 3.5 : 2);
+            // Labels: only show near viewport center to reduce clutter
+            const nearCenter = (() => {
+              const dx = p.x - cx, dy = p.y - cy;
+              return dx * dx + dy * dy < (R * 0.6) * (R * 0.6);
+            })();
             return (
               <g key={s.callsign} style={{ cursor: "pointer" }}
                  onClick={() => onFccStationClick && onFccStationClick(s)}
@@ -250,14 +264,14 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
                     {[...selectedFccStations].indexOf(s.callsign) + 1}
                   </text>
                 )}
-                {/* Progressive labels: Scripps always at regional+; all visible at street */}
-                {!isSel && zoomTier === 'regional' && isScripps && (
+                {/* Progressive labels: Scripps near center at regional; all near center at street */}
+                {!isSel && zoomTier === 'regional' && isScripps && nearCenter && (
                   <text x={p.x + r + 3} y={p.y + 3} fill="rgba(255,184,28,0.8)" fontSize="7"
                         fontFamily="'JetBrains Mono', monospace" fontWeight="600" pointerEvents="none">
                     {s.callsign}
                   </text>
                 )}
-                {!isSel && zoomTier === 'street' && (
+                {!isSel && zoomTier === 'street' && nearCenter && (
                   <text x={p.x + r + 3} y={p.y + 3}
                         fill={isScripps ? 'rgba(255,184,28,0.8)' : 'rgba(255,255,255,0.6)'}
                         fontSize="8"
@@ -335,8 +349,7 @@ export default function Globe({ stations, landGeo, route, focusIdx, rotation, zo
                   <circle cx={p.x} cy={p.y} r={rdot + 1.5} fill="rgba(11,37,69,0.8)" />
                   <circle cx={p.x} cy={p.y} r={rdot} fill={color}
                           stroke={isSelected || isHQ ? "#FFB81C" : "rgba(255,255,255,0.6)"}
-                          strokeWidth={isSelected || isHQ ? 1.2 : 0.6}
-                          filter={isSelected ? "url(#glow)" : undefined} />
+                          strokeWidth={isSelected || isHQ ? 1.8 : 0.6} />
                 </>
               )}
               {hasLogo && isSelected && (
