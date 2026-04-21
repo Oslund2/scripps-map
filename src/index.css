@@ -1127,6 +1127,60 @@ body {
   flex: 1;
   min-height: 0;
 }
+/* Regulatory mode indicator */
+.ai-mode-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 4px 10px;
+  margin-bottom: 8px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.ai-mode-indicator.ai-mode-deregulated {
+  color: #1a1a1a;
+  background: var(--scripps-beam);
+  border-color: var(--scripps-beam);
+  font-weight: 700;
+}
+
+/* Regulatory mode toggle (settings panel) */
+.ai-mode-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  border: 1px solid var(--line-on-dark);
+}
+.ai-mode-toggle-btn {
+  flex: 1;
+  padding: 7px 12px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.03);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ai-mode-toggle-btn:first-child { border-right: 1px solid var(--line-on-dark); }
+.ai-mode-toggle-btn:hover:not(.on) { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.06); }
+.ai-mode-toggle-btn.on {
+  color: #1a1a1a;
+  background: var(--scripps-beam);
+  font-weight: 600;
+}
+
 .ai-templates {
   display: flex;
   flex-wrap: wrap;
