@@ -82,6 +82,80 @@ After the combination, at least 8 independently owned and operating full-power c
 
 **Current FCC posture:** Under Chairman Brendan Carr (2025+), the FCC has been more amenable to broadcaster transactions and has signaled openness to waivers, especially for struggling small-market stations.`;
 
+const AFFILIATION_STRATEGY_CURRENT = `## Affiliation Strategy — The Path to Big 4 Duopolies
+
+**Scripps's strategic end state in every market:** own TWO Big 4 affiliates (ABC, CBS, NBC, or Fox) plus one independent station programmed for local sports. Affiliation switching — a private contract negotiation requiring no FCC approval — is the novel path to achieving this under current ownership rules.
+
+### How Network Affiliations Work
+- A network affiliation is a **private contract** between a station owner and a network (ABC, CBS, NBC, Fox). It is NOT regulated by the FCC.
+- Affiliation agreements typically run 8–10 years with renewal negotiation windows.
+- A network can move its affiliation from one station to another in the same market at contract expiration, or mid-cycle for cause.
+- **The FCC has no approval role in affiliation changes.** No license transfer, no Form 315, no public notice. The station keeps its FCC license, call sign, and transmitter — only the programming changes.
+
+### Why 2025–2026 Is Ripe for Affiliation Switches
+- **Reverse compensation disputes:** Networks now demand stations PAY THEM for programming rights (reverse retrans). Smaller or weaker affiliates facing rising reverse comp fees may balk, creating an opening for a well-capitalized owner like Scripps to offer the network a better deal and win the affiliation.
+- **Ratings underperformance:** If a current affiliate consistently underperforms in local news or total day, the network has strong incentive to switch to a station with better infrastructure and investment commitment.
+- **Streaming erosion of legacy ties:** Networks with major streaming platforms (Peacock/NBC, Paramount+/CBS, Hulu/ABC) may be less invested in protecting long-standing affiliate relationships. Loyalty has declined on both sides.
+- **Ownership consolidation:** As broadcaster groups merge and divest, networks may prefer consolidating affiliate relationships with a single strong owner (like Scripps) carrying their flag in multiple markets — simplifying retrans negotiations and ensuring consistent investment standards.
+- **Carr-era regulatory environment:** Chairman Brendan Carr's FCC (2025+) has signaled openness to broadcaster consolidation. Networks may be more willing to disrupt affiliate relationships when the broader environment is permissive.
+
+### The Strategic Framework — "Acquire, Then Affiliate"
+The FCC top-4 test applies at the **time of acquisition** — it evaluates the station's affiliation status when Scripps files for FCC approval to buy it.
+
+**Step 1:** Scripps identifies a market where it wants a second Big 4 affiliate.
+**Step 2:** Scripps acquires a **secondary station** (CW, MyNetworkTV, indie, or ION) — this passes the FCC top-4 test because that station is NOT currently top-4.
+**Step 3:** After acquisition closes and Scripps holds the FCC license, Scripps negotiates with a Big 4 network to move its affiliation to the newly acquired Scripps station.
+**Step 4:** The prior affiliate (owned by a competitor) loses the Big 4 affiliation and becomes a secondary/independent.
+**Step 5:** Scripps now effectively operates two Big 4 affiliates in the market. The FCC top-4 test was satisfied at acquisition time.
+
+**Critical caveats to communicate in any analysis:**
+- The FCC could challenge a pre-arranged affiliation switch (agreed before acquisition closed) as circumventing the top-4 test. No binding affiliation agreement should exist before FCC transfer approval.
+- The network must actually want to switch — this is not unilateral. Scripps must make a compelling case as a better partner.
+- The displaced affiliate owner may litigate or lobby against the switch. Political and industry backlash is possible.
+- Under Chairman Carr, a formal FCC challenge is unlikely — but the risk increases if political winds shift.
+
+### Evaluating "Switchability" — What Makes a Market Ripe
+Rank switch opportunities by these factors:
+- **Incumbent vulnerability:** Is the current affiliate owned by a financially stressed group (high debt, declining ratings, activist investors, merger uncertainty)? Financially distressed affiliates are less able to outbid Scripps for the network relationship.
+- **Aging infrastructure:** Does the current affiliate have outdated transmitter equipment, deteriorating studio facilities, or a weak local news operation? Networks care about affiliate investment levels.
+- **Scripps market strength:** Does Scripps already operate a #1 or #2 rated station in the market? A proven track record of operational excellence strengthens the pitch to the network.
+- **Spectrum position of the acquisition target:** A low channel number (2–13), strong signal, and central transmitter site are all factors networks value.
+- **Affiliation agreement expiration:** Networks are most open to switching at contract renewal time, typically every 8–10 years. If a competitor's affiliate agreement was last renewed in 2016–2018, it likely comes up for renewal in 2024–2028.
+- **Market revenue profile:** Higher-revenue markets (larger DMA, political swing state) create more network attention and more willingness to re-evaluate affiliates.
+
+### The Independent Sports Station: Third Piece of the End State
+Each Scripps market's end state includes a non-network independent programmed for local sports:
+- Carries local professional team games (NBA, NHL, MLB, MLS, WNBA) under broadcast rights deals
+- Programs local high school and college sports
+- Runs sports betting, analysis, and highlight shows (sports betting integration is a growth area)
+- The station is typically the lowest-cost acquisition target in the market: ION, indie, former-CW
+- **Model already exists:** KMCC (Vegas 34) serves this role as the Vegas Golden Knights flagship. Revenue model: lower ad rate but passionate young-male demo, potential for team equity partnerships, sports betting integration.
+- When analyzing independent sports station opportunities, identify: which local professional teams are in the market, what their current broadcast rights arrangement is, and whether those rights are acquirable for a new independent sports platform.`;
+
+const AFFILIATION_STRATEGY_DEREGULATED = `## Affiliation Strategy — Optimization Under Deregulation
+
+**Scripps's strategic end state in every market:** own TWO Big 4 affiliates (ABC, CBS, NBC, or Fox) plus one independent station programmed for local sports. Without FCC ownership caps, direct acquisition is the primary path — but affiliation switching remains a powerful value-creation and negotiating tool.
+
+### Direct Acquisition Path (Deregulated)
+Without the top-4 prohibition, Scripps can simply acquire an existing Big 4 affiliate in any market where it already owns one. No affiliation switching required for FCC compliance — the deal structure is straightforward. Focus analysis on:
+- Which competitor-owned Big 4 affiliates in each market are most acquirable (financial distress, motivated sellers, strategic fit)
+- Estimated acquisition cost vs. revenue uplift
+- DOJ antitrust screen: does Scripps controlling 2 Big 4 affiliates in a market push local TV ad concentration above 40%?
+
+### Affiliation Switching as a Value Tool (Even Without FCC Pressure)
+Even when direct acquisition is possible, affiliation switching can be the **smarter value play**:
+- **Price arbitrage:** Acquiring a secondary station (CW/MyNet/indie) and then negotiating a Big 4 affiliation costs far less than acquiring the Big 4 affiliate directly. The existing Big 4 station trades at 7–10x cash flow; a secondary trades at 3–5x. If the affiliation switch succeeds, Scripps gets Big 4 economics at secondary prices.
+- **Multi-market retrans leverage:** Scripps can use its scale across dozens of markets to negotiate favorable affiliation terms with networks — offering consistent investment standards and multi-market retrans deals in exchange for affiliation awards in specific target markets.
+- **Competitive disruption:** Stripping a Big 4 affiliation from a financially stressed competitor damages their retrans revenue, ratings, and enterprise value — potentially forcing a distressed sale of other assets to Scripps at a discount.
+- **Network leverage in negotiations:** The credible threat of moving an affiliation (even if Scripps doesn't execute) strengthens Scripps's position in reverse compensation negotiations with networks.
+
+### The Independent Sports Station: Third Piece of the End State
+Each Scripps market's end state includes a non-network independent programmed for local sports. Without ownership caps, Scripps can build a **national independent sports network** across all markets — a wholly owned sports cable/broadcast hybrid. Consider:
+- Acquiring all ION/indie stations in Scripps markets as the sports indie layer
+- Securing regional sports network (RSN) rights for local teams (RSNs are in financial distress and many teams want to move back to over-the-air broadcast)
+- Sports betting integration across the owned sports stations
+- **Model already exists:** KMCC (Vegas 34) as the Vegas Golden Knights flagship`;
+
 const FCC_RULES_DEREGULATED = `## Regulatory Environment: No Ownership Caps
 
 You are analyzing deals in a scenario where FCC broadcast ownership caps have been lifted. The local television ownership rules (47 CFR §73.3555(b)) NO LONGER APPLY:
@@ -160,6 +234,8 @@ ${marketTable(MARKETS)}
 ${competitorSection()}
 
 This dataset covers ~1,761 full-power DT stations across all 210 US DMAs. Station counts by group: Nexstar ~197, Gray ~173, Sinclair ~151, Tegna ~64, Scripps ~60, ION ~40, Hearst ~35, NBC O&O ~35, Fox O&O ~29, INYO ~23, CBS O&O ~21. Counts reflect full-power only — groups may claim higher totals including low-power (LD/CD) and subchannel stations.
+
+${isDeregulated ? AFFILIATION_STRATEGY_DEREGULATED : AFFILIATION_STRATEGY_CURRENT}
 
 ## Your Instructions
 
