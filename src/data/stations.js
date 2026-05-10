@@ -28,7 +28,6 @@ export const SCRIPPS_STATIONS = [
   { callsign: "KMCC",  type: "ind",      city: "Las Vegas",            state: "NV", lat: 36.1699, lon: -115.1398, affiliation: "Vegas 34",         logo: null, notes: "Flagship: Vegas Golden Knights" },
   { callsign: "WKBW",  type: "abc",      city: "Buffalo",              state: "NY", lat: 42.8864, lon: -78.8784, affiliation: "ABC WKBW 7",         logo: "wkbw.png" },
   { callsign: "WTVF",  type: "cbs",      city: "Nashville",            state: "TN", lat: 36.1627, lon: -86.7816, affiliation: "NewsChannel 5",      logo: "wtvf.png" },
-  { callsign: "WRTV",  type: "abc",      city: "Indianapolis",         state: "IN", lat: 39.7684, lon: -86.1581, affiliation: "ABC WRTV 6",         logo: null },
   { callsign: "KJRH",  type: "nbc",      city: "Tulsa",                state: "OK", lat: 36.1540, lon: -95.9928, affiliation: "2 News Oklahoma",    logo: "kjrh.png" },
   { callsign: "KMTV",  type: "cbs",      city: "Omaha",                state: "NE", lat: 41.2565, lon: -95.9345, affiliation: "3 News Now",        logo: "kmtv.png" },
   { callsign: "KSTU",  type: "fox",      city: "Salt Lake City",       state: "UT", lat: 40.7608, lon: -111.8910, affiliation: "Fox 13 Utah",     logo: "kstu.png" },
@@ -40,7 +39,10 @@ export const SCRIPPS_STATIONS = [
   { callsign: "WSFL",  type: "ind",      city: "Miami",                state: "FL", lat: 25.7617, lon: -80.1918, affiliation: "SFL CW 39",          logo: "wsfl.png" },
   { callsign: "KIVI",  type: "abc",      city: "Boise",                state: "ID", lat: 43.6150, lon: -116.2023, affiliation: "Idaho News 6",     logo: "kivi.png" },
   { callsign: "KSAW",  type: "abc",      city: "Twin Falls",           state: "ID", lat: 42.5629, lon: -114.4609, affiliation: "Idaho News 6",     logo: null },
+  { callsign: "KMVT",  type: "cbs",      city: "Twin Falls",           state: "ID", lat: 42.5629, lon: -114.4609, affiliation: "CBS 11",           logo: null,         notes: "Acquiring from Gray swap — FCC approved Apr 28, 2026, close pending. Creates CBS+ABC duopoly with KSAW." },
   { callsign: "KOAA",  type: "nbc",      city: "Colorado Springs",     state: "CO", lat: 38.8339, lon: -104.8214, affiliation: "News5",            logo: "koaa.png" },
+  { callsign: "KKTV",  type: "cbs",      city: "Colorado Springs",     state: "CO", lat: 38.8339, lon: -104.8214, affiliation: "CBS 11",           logo: null,         notes: "Acquiring from Gray swap — FCC approved Apr 28, 2026, close pending. Creates CBS+NBC duopoly with KOAA." },
+  { callsign: "KKCO",  type: "nbc",      city: "Grand Junction",       state: "CO", lat: 39.0639, lon: -108.5506, affiliation: "NBC 11",           logo: null,         notes: "Acquiring from Gray swap — FCC approved Apr 28, 2026, close pending. New Scripps market." },
   { callsign: "KCDO",  type: "ind",      city: "Denver",               state: "CO", lat: 39.7392, lon: -104.9903, affiliation: "The Spot Denver",   logo: null },
   { callsign: "KERO",  type: "abc",      city: "Bakersfield",          state: "CA", lat: 35.3733, lon: -119.0187, affiliation: "23ABC News",       logo: "kero.png" },
   { callsign: "KSBY",  type: "nbc",      city: "San Luis Obispo",      state: "CA", lat: 35.2828, lon: -120.6596, affiliation: "KSBY 6",            logo: "ksby.png" },
@@ -50,13 +52,12 @@ export const SCRIPPS_STATIONS = [
   { callsign: "KRHD",  type: "abc",      city: "Bryan",                state: "TX", lat: 30.6744, lon: -96.3698, affiliation: "KRHD 40",           logo: null },
   { callsign: "KRIS",  type: "nbc",      city: "Corpus Christi",       state: "TX", lat: 27.8006, lon: -97.3964, affiliation: "KRIS 6",             logo: "kris.png" },
   { callsign: "KZTV",  type: "cbs",      city: "Corpus Christi",       state: "TX", lat: 27.8006, lon: -97.3964, affiliation: "KZTV 10",            logo: null },
-  { callsign: "KATC",  type: "abc",      city: "Lafayette",            state: "LA", lat: 30.2241, lon: -92.0198, affiliation: "KATC 3",             logo: "katc.png" },
+  { callsign: "KATC",  type: "abc",      city: "Lafayette",            state: "LA", lat: 30.2241, lon: -92.0198, affiliation: "KATC 3",             logo: "katc.png", notes: "Swapping to Gray — FCC approved Apr 28, 2026, close pending" },
   { callsign: "WLEX",  type: "nbc",      city: "Lexington",            state: "KY", lat: 38.0406, lon: -84.5037, affiliation: "LEX 18",             logo: "wlex.png" },
   { callsign: "WTVQ",  type: "abc",      city: "Lexington",            state: "KY", lat: 38.0406, lon: -84.5037, affiliation: "ABC 36",             logo: null },
   { callsign: "WGBA",  type: "nbc",      city: "Green Bay",            state: "WI", lat: 44.5133, lon: -88.0133, affiliation: "NBC 26",             logo: "wgba.png" },
   { callsign: "WACY",  type: "ind",      city: "Green Bay",            state: "WI", lat: 44.5133, lon: -88.0133, affiliation: "The Spot 32",        logo: null },
-  { callsign: "WSYM",  type: "fox",      city: "Lansing",              state: "MI", lat: 42.7325, lon: -84.5555, affiliation: "Fox 47",             logo: "wsym.png" },
-  { callsign: "WFTX",  type: "fox",      city: "Fort Myers",           state: "FL", lat: 26.6406, lon: -81.8723, affiliation: "Fox 4",              logo: "wftx.png" },
+  { callsign: "WSYM",  type: "fox",      city: "Lansing",              state: "MI", lat: 42.7325, lon: -84.5555, affiliation: "Fox 47",             logo: "wsym.png", notes: "Swapping to Gray — FCC approved Apr 28, 2026, close pending" },
   { callsign: "WTXL",  type: "abc",      city: "Tallahassee",          state: "FL", lat: 30.4383, lon: -84.2807, affiliation: "ABC 27",             logo: "wtxl.png" },
   { callsign: "WXPX",  type: "ind",      city: "Tampa",                state: "FL", lat: 27.9506, lon: -82.4572, affiliation: "Tampa Bay 66",       logo: null },
 
@@ -137,7 +138,6 @@ export const TOUR = [
   // ═══ FLORIDA — IN via I-75 S ═══
   "WOPX",           // Orlando
   "WFTS", "WXPX",   // Tampa
-  "WFTX",           // Fort Myers
   "HQ2", "WPTV", "WFLX", "WHDT",  // West Palm Beach
   "WSFL", "WPXM",   // Miami
   // ═══ FLORIDA — OUT (I-75 N, I-10 W) ═══
@@ -176,7 +176,6 @@ export const TOUR = [
   "WTVR",           // Richmond
   "WTKR", "WGNT",   // Norfolk
   // ═══ HEARTLAND RETURN (I-64, I-77, I-70) ═══
-  "WRTV",           // Indianapolis
   // ═══ MOUNTAIN WEST (I-70, I-25) ═══
   "KOAA",           // Colorado Springs
   "KMGH", "KCDO",   // Denver
@@ -221,8 +220,7 @@ export const TOUR_VIA = {
   WOPX: { roads: "I-75 S to FL Turnpike", miles: 440 },
   WFTS: { roads: "I-4 W", miles: 80 },
   WXPX: { roads: null, miles: 0 },
-  WFTX: { roads: "I-75 S", miles: 140 },
-  HQ2:  { roads: "US-27 E, I-95 N", miles: 160 },
+  HQ2:  { roads: "FL Turnpike S", miles: 250 },
   WPTV: { roads: null, miles: 0 },
   WFLX: { roads: null, miles: 0 },
   WHDT: { roads: null, miles: 0 },
@@ -259,8 +257,7 @@ export const TOUR_VIA = {
   WTVR: { roads: "I-95 S", miles: 110 },
   WTKR: { roads: "I-64 E", miles: 95 },
   WGNT: { roads: null, miles: 0 },
-  WRTV: { roads: "I-64 W, I-77 N, I-70 W", miles: 700 },
-  KOAA: { roads: "I-70 W, I-25 S", miles: 1060 },
+  KOAA: { roads: "I-64 W, I-77 N, I-70 W, I-25 S", miles: 1760 },
   KMGH: { roads: "I-25 N", miles: 70 },
   KCDO: { roads: null, miles: 0 },
   KTVQ: { roads: "I-25 N, I-90 E", miles: 550 },

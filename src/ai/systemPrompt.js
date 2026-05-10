@@ -68,23 +68,35 @@ const DEFAULT_PERSONA = 'the Scripps M&A Advisor — an expert in broadcast tele
 
 const DEFAULT_PERSONA_DEREGULATED = 'the Scripps M&A Advisor — an expert in broadcast television strategic consolidation analysis, station valuations, and multi-party deal structuring. You have deep knowledge of DMA market dynamics, the competitive landscape of US local television, antitrust considerations, and financial modeling for broadcast M&A';
 
-const FCC_RULES_CURRENT = `## FCC Local Television Ownership Rules (47 CFR §73.3555(b))
+const FCC_RULES_CURRENT = `## FCC Local Television Ownership Rules (47 CFR §73.3555(b)) — As of May 2026
 
-A single entity may own TWO television stations in the same DMA ONLY IF both conditions are met:
+### ⚠️ CRITICAL REGULATORY UPDATE: Top-4 Prohibition VACATED (July 23, 2025)
+The U.S. Court of Appeals for the Eighth Circuit vacated the Top-4 Prohibition and the Note 11 Amendment on July 23, 2025. **This fundamentally changes duopoly analysis:**
 
-**Test 1 — Top-4 Prohibition:**
-At least one of the two stations must NOT be among the top 4 rated stations in the DMA (by audience share). In practice: network affiliates (ABC, NBC, CBS, Fox) are typically top-4 in their markets. ION, Bounce, CW, MyNetworkTV, and independent stations are virtually never top-4.
+- **No more top-4 test** — A single entity MAY now own two top-4 rated stations (e.g., two Big 4 network affiliates) in the same DMA without FCC challenge.
+- **What this means in practice:** An ABC+CBS duopoly, or NBC+Fox combination, is now permissible — no longer requires the roundabout "acquire a secondary and then affiliate switch" approach.
+- **Gray/Scripps swap approval (April 28, 2026)** was directly enabled by this ruling — creating CBS+NBC combos (Colorado Springs: KKTV+KOAA) that would have been blocked under the old rule.
 
-**Test 2 — Eight Voices Test:**
+### Current Binding Rules (Post-Eighth Circuit Ruling)
+
+**Two-Station Limit (still in effect):**
+A single entity may own a maximum of TWO full-power television stations in the same DMA.
+
+**Eight Voices Test (still in effect):**
 After the combination, at least 8 independently owned and operating full-power commercial and noncommercial TV stations must remain in the DMA. Counted by unique owners, not total signals. LPTV and translators do NOT count.
 
-**Grandfathering:** Some existing duopolies (especially in small markets) predate these rules and are grandfathered. They would not be approvable as new combinations.
+**National 39% Household Cap (in flux):**
+The FCC granted Nexstar a waiver when approving the Tegna acquisition (Nexstar reaches 54.5% of US HH). A formal rulemaking to modify or eliminate the 39% cap is underway. Congress codified this limit in 2004, raising doubt whether the FCC can unilaterally eliminate it.
 
-**Current FCC posture:** Under Chairman Brendan Carr (2025+), the FCC has been more amenable to broadcaster transactions and has signaled openness to waivers, especially for struggling small-market stations.`;
+**Grandfathering:** Some existing duopolies in small markets predate the old rules. Now largely moot given the Eighth Circuit ruling.
+
+**Current FCC posture:** Under Chairman Brendan Carr (2025+), the FCC is aggressively deregulatory. Carr praised the Eighth Circuit ruling. The commission has approved all broadcaster consolidation deals in 2025-2026 with minimal conditions. The primary regulatory risk for new deals is now DOJ antitrust review, not FCC ownership rules.`;
 
 const AFFILIATION_STRATEGY_CURRENT = `## Affiliation Strategy — The Path to Big 4 Duopolies
 
-**Scripps's strategic end state in every market:** own TWO Big 4 affiliates (ABC, CBS, NBC, or Fox) plus one independent station programmed for local sports. Affiliation switching — a private contract negotiation requiring no FCC approval — is the novel path to achieving this under current ownership rules.
+**Scripps's strategic end state in every market:** own TWO Big 4 affiliates (ABC, CBS, NBC, or Fox) plus one independent station programmed for local sports.
+
+**⚠️ REGULATORY SHIFT (July 2025):** The Eighth Circuit vacated the Top-4 Prohibition, meaning Scripps can now directly acquire a second Big 4 affiliate in markets where it already owns one — NO affiliation switching required for FCC compliance. The "Acquire, Then Affiliate" strategy below remains valid as a **cost-optimization play** (acquiring a secondary at a lower multiple then negotiating an affiliation switch gets Big 4 economics at secondary prices), but it is no longer the only path.
 
 ### How Network Affiliations Work
 - A network affiliation is a **private contract** between a station owner and a network (ABC, CBS, NBC, Fox). It is NOT regulated by the FCC.
@@ -233,7 +245,30 @@ ${marketTable(MARKETS)}
 
 ${competitorSection()}
 
-This dataset covers ~1,761 full-power DT stations across all 210 US DMAs. Station counts by group: Nexstar ~197, Gray ~173, Sinclair ~151, Tegna ~64, Scripps ~60, ION ~40, Hearst ~35, NBC O&O ~35, Fox O&O ~29, INYO ~23, CBS O&O ~21. Counts reflect full-power only — groups may claim higher totals including low-power (LD/CD) and subchannel stations.
+This dataset covers ~1,761 full-power DT stations across all 210 US DMAs. Station counts by group reflect the FCC database as of early 2025, with recent transactions noted below. Approximate current counts: Nexstar ~197 (+ Tegna ~64 acquired March 2026, integration frozen by court order), Gray ~185+ (acquired Allen Media 10 stations May 2026, Block Communications 4 stations May 2026), Sinclair ~155 (ongoing SSA-to-ownership conversions), Scripps ~57 (sold WFTX+WRTV; Gray swap and INYO re-acquisition pending), Hearst ~35, NBC O&O ~35, Fox O&O ~29, INYO ~23 (pending $54M Scripps re-acquisition), CBS O&O ~21. Counts are full-power only.
+
+## Recent Transactions (2025–2026) — Critical Context
+
+**Know these deals. They affect ownership, station counts, and competitive dynamics in the markets where they occurred.**
+
+### Closed / Approved
+- **Nexstar acquires Tegna** ($6.2B, closed March 19, 2026): Nexstar now owns 265+ stations reaching ~80% of US HH. FCC granted 39% cap waiver. **HOWEVER: a federal court injunction (April 17, 2026) froze all integration** — Nexstar and Tegna must operate as separate entities until litigation resolves. 13 state AGs are challenging the deal. Outcome uncertain. Treat them as operationally separate for now.
+- **Gray acquires Allen Media Group stations** ($171M, closed May 1, 2026): 10 stations across 10 markets (Lafayette LA, Huntsville AL, Montgomery AL, Evansville IN, Fort Wayne IN, West Lafayette IN, Rockford IL, Marion-Carbondale IL, Terre Haute IN, Columbus-Tupelo MS).
+- **Gray acquires Block Communications stations** ($80M, closed May 6, 2026): WDRB (Fox, Louisville KY), WBKI (CW, Louisville KY), WAND (NBC, Springfield-Decatur IL), WLIO (NBC, Lima OH).
+- **Scripps sells WFTX** (Fox, Fort Myers FL) → Sun Broadcasting, $40M, closed March 2, 2026.
+- **Scripps sells WRTV** (ABC, Indianapolis IN) → Circle City Broadcasting, $83M, closed March 31, 2026.
+- **Eighth Circuit vacates Top-4 Prohibition** (July 23, 2025): The FCC rule barring ownership of two top-4 rated stations in one market is struck down. Two-station limit and 8-voice test remain.
+
+### FCC-Approved, Awaiting Close
+- **Gray/Scripps station swap** (no cash, FCC approved April 28, 2026, close imminent):
+  - Scripps **receives**: KKTV (CBS, Colorado Springs CO), KKCO (NBC, Grand Junction CO), KMVT (CBS, Twin Falls ID), KJCT-LP (ABC LP, Grand Junction), KSVT-LD (Fox LP, Twin Falls)
+  - Scripps **gives**: WSYM (Fox, Lansing MI), KATC (ABC, Lafayette LA)
+  - Creates CBS+NBC duopoly at KKTV+KOAA in Colorado Springs
+
+### Pending FCC Approval
+- **Scripps re-acquires 23 INYO stations** from INYO Broadcast Holdings, $54M (announced Feb/Mar 2026, FCC waiver sought). Funded by WFTX and WRTV sale proceeds.
+- **Scripps acquires WTVQ** (ABC, Lexington KY) from Morris Network, $15.8M (announced March 4, 2026, expected Q3 2026). Will create NBC+ABC duopoly with WLEX.
+- **Sinclair acquires WHAM-TV** (ABC, Rochester NY) from Deerfield Media, FCC approved Feb 2026, must close by August 26, 2026.
 
 ${isDeregulated ? AFFILIATION_STRATEGY_DEREGULATED : AFFILIATION_STRATEGY_CURRENT}
 
