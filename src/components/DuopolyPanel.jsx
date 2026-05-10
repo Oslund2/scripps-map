@@ -124,7 +124,11 @@ export default function DuopolyPanel({
   // Tapping a tab also opens the panel if collapsed
   const switchTab = (tab) => {
     onPanelTab(tab);
-    if (panelSize === 'collapsed') onCyclePanel(); // collapsed → mid
+    if (tab === 'advisor') {
+      if (panelSize !== 'expanded') onSetPanelSize('expanded');
+    } else if (panelSize === 'collapsed') {
+      onCyclePanel(); // collapsed → mid
+    }
   };
 
   const tabBar = (
@@ -252,7 +256,7 @@ export default function DuopolyPanel({
               {isFocused ? '\u2715' : '\u2922'}
             </button>
           </div>
-          <SwapAdvisor selectedStations={selectedStations} onClearSelection={onClearSelection} />
+          <SwapAdvisor selectedStations={selectedStations} onClearSelection={onClearSelection} onExpandPanel={() => onSetPanelSize('expanded')} />
         </aside>
       </>
     );

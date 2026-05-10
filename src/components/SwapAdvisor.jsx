@@ -269,7 +269,7 @@ function buildMarketPrompt(stations, mode) {
   return `Analyze these ${marketEntries.length} markets I've selected for M&A opportunity:\n${list}\nFor Scripps, evaluate:\n- Cross-market swap scenarios and synergies between these markets\n${complianceLine}\n- Estimated deal value using DMA revenue benchmarks\n${expansionLine}\n- ${riskLabel} rating (LOW/MEDIUM/HIGH) for each scenario\n- Recommended best move and priority order\n\nCite all data points with (i1)-(i5) markers.`;
 }
 
-export default function SwapAdvisor({ selectedStations = [], onClearSelection }) {
+export default function SwapAdvisor({ selectedStations = [], onClearSelection, onExpandPanel }) {
   const {
     messages, isStreaming, error, apiKeyConfigured,
     sendMessage, clearMessages,
@@ -283,6 +283,12 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
   const [showRawPrompt, setShowRawPrompt] = useState(false);
   const threadRef = useRef(null);
   const userAtBottom = useRef(true);
+
+  function handleAnalyze(prompt) {
+    sendMessage(prompt);
+    userAtBottom.current = true;
+    onExpandPanel?.();
+  }
 
   function handleScroll() {
     const el = threadRef.current;
@@ -303,6 +309,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
     sendMessage(input);
     setInput('');
     userAtBottom.current = true;
+    onExpandPanel?.();
   }
 
   function handleKeyDown(e) {
@@ -444,7 +451,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
                 </span>
               </div>
               <button className="ai-analyze-btn" disabled={isStreaming}
-                      onClick={() => { sendMessage(prompt); userAtBottom.current = true; }}>
+                      onClick={() => handleAnalyze(prompt)}>
                 Analyze {dma} Deal
               </button>
             </div>
@@ -477,7 +484,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
                 ))}
               </div>
               <button className="ai-analyze-btn" disabled={isStreaming}
-                      onClick={() => { sendMessage(prompt); userAtBottom.current = true; }}>
+                      onClick={() => handleAnalyze(prompt)}>
                 {btnLabel}
               </button>
             </div>
@@ -516,7 +523,7 @@ export default function SwapAdvisor({ selectedStations = [], onClearSelection })
               ))}
             </div>
             <button className="ai-analyze-btn" disabled={isStreaming}
-                    onClick={() => { sendMessage(prompt); userAtBottom.current = true; }}>
+                    onClick={() => handleAnalyze(prompt)}>
               Analyze {isMultiMarket ? `${marketNames.length} Markets` : `${selectedStations.length} Station${selectedStations.length !== 1 ? 's' : ''}`}
             </button>
           </div>
